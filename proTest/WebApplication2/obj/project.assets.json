@@ -492,11 +492,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\USER\\Desktop\\proTest\\WebApplication2\\WebApplication2.csproj",
+      "projectUniqueName": "C:\\Users\\USER\\Desktop\\projectUpdate\\proTest\\WebApplication2\\WebApplication2.csproj",
       "projectName": "WebApplication2",
-      "projectPath": "C:\\Users\\USER\\Desktop\\proTest\\WebApplication2\\WebApplication2.csproj",
+      "projectPath": "C:\\Users\\USER\\Desktop\\projectUpdate\\proTest\\WebApplication2\\WebApplication2.csproj",
       "packagesPath": "C:\\Users\\USER\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\USER\\Desktop\\proTest\\WebApplication2\\obj\\",
+      "outputPath": "C:\\Users\\USER\\Desktop\\projectUpdate\\proTest\\WebApplication2\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\USER\\AppData\\Roaming\\NuGet\\NuGet.Config",

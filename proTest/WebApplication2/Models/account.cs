@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -17,51 +18,19 @@ namespace WebApplication2.Models
     }
     public class messages
     {
-        private int message_ID = 0;
-        public int messageID{
-            get{
-                return message_ID;
-            }
-            set{
-                message_ID = value;
-            }
-        }
-        private int reply_ID = 0;
-        public int replyID{
-            get{
-                return reply_ID;
-            }
-            set{
-                reply_ID = value;
-            }
-        }
-        private string user_Name = "0202";
-        public string userName{
-            get{
-                return user_Name;
-            }
-            set{
-                user_Name = value;
-            }
-        }
-        private string main_ = "無";
-        public string main{
-            get{
-                return main_;
-            }
-            set{
-                main_ = value;
-            }
-        }
-        private DateTime _date = DateTime.Now;
-        public DateTime date{
-            get{
-                return _date;
-            }
-            set{
-                _date = value;
-            }
-        }
+
+        public int messageID { get; set; } = 0;
+
+        public int replyID { get; set; } = 0;
+
+        public int userID { get; set; }
+
+        public string userName { get; set; } = "0202";
+
+        [Required(ErrorMessage = "訊息不能為空！")]
+        public string main { get; set; }
+
+        public DateTime date { get; set; } = DateTime.Now;
     }
 
 

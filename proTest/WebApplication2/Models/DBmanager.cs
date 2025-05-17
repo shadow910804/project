@@ -53,10 +53,11 @@ namespace WebApplication2.Models
         public void keyinMessage(messages m)
         {
             SqlConnection sqlconnection = new SqlConnection(connStr);
-            SqlCommand sqlcommand = new SqlCommand(@"INSERT INTO message(replyID,userName,main) VALUES(@replyID,@userName,@main)");
+            SqlCommand sqlcommand = new SqlCommand(@"INSERT INTO message(replyID,userID,userName,main) VALUES(@replyID,@userID,@userName,@main)");
             sqlcommand.Connection = sqlconnection;
 
             sqlcommand.Parameters.Add(new SqlParameter("@replyID", m.replyID));
+            sqlcommand.Parameters.Add(new SqlParameter("@userID", m.userID));
             sqlcommand.Parameters.Add(new SqlParameter("@userName", m.userName));
             sqlcommand.Parameters.Add(new SqlParameter("@main", m.main));
 
@@ -71,11 +72,12 @@ namespace WebApplication2.Models
         public void fixMessage(messages m)
         {
             SqlConnection sqlconnection = new SqlConnection(connStr);
-            SqlCommand sqlcommand = new SqlCommand(@"UPDATE message SET main = @main WHERE messageID = @i");
+            SqlCommand sqlcommand = new SqlCommand(@"UPDATE message SET main = @main,date = @date WHERE userID = @i");
             sqlcommand.Connection = sqlconnection;
 
-            sqlcommand.Parameters.Add(new SqlParameter("@i", m.messageID));//改使用者ID
+            sqlcommand.Parameters.Add(new SqlParameter("@i", m.userID));
             sqlcommand.Parameters.Add(new SqlParameter("@main", m.main));
+            sqlcommand.Parameters.Add(new SqlParameter("@date", m.date));
 
             sqlconnection.Open();
             sqlcommand.ExecuteNonQuery();
@@ -137,14 +139,10 @@ namespace WebApplication2.Models
                     account account = new account
                     {
                         ID = reader.GetInt32(reader.GetOrdinal("id")),
-                        userName = reader.GetString(reader.GetOrdinal("userName")),
-                        password = reader.GetString(reader.GetOrdinal("password")),
+                        userName = reader.GetString(reader.GetOrdinal("userName"))
                     };
-                    if (account.userName == u.userName && account.password == u.password)
-                    {
-                        sqlConnection.Close();
-                        return account;
-                    }
+                    sqlConnection.Close();
+                    return account;
                 }
             }
             else

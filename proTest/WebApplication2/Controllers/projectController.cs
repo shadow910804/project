@@ -3,7 +3,6 @@ using MailKit.Security;
 using Microsoft.AspNetCore.Mvc;
 using MimeKit;
 using MimeKit.Cryptography;
-using System.Xml.Linq;
 using WebApplication2.Models;
 
 namespace WebApplication2.Controllers
@@ -11,10 +10,12 @@ namespace WebApplication2.Controllers
     public class projectController : Controller
     {
         //讀取資料庫中的留言
-        public IActionResult Index()
+        public IActionResult Index(account a)
         {
             DBmanager db = new DBmanager();
             List<messages> messages = new List<messages>(db.getMessages());
+            ViewBag.ID = a.ID;
+            ViewBag.name = a.userName;
             ViewBag.messages = messages;
             return View();
         }
@@ -65,20 +66,22 @@ namespace WebApplication2.Controllers
         public IActionResult singin(account u)
         {
             if (Request.Method == "GET")
+            {
                 return View();
+            }
             else
             {
                 DBmanager dbmanager = new DBmanager();
                 try
                 {
+                    dbmanager.login(u);
                     account accounts = dbmanager.login(u);
-                    temp.ID = accounts.ID;
-                    temp.userName = accounts.userName;
-                    return RedirectToAction("Index");
+                    return RedirectToAction("Index", "project", new account { ID = accounts.ID, userName = accounts.userName });
                 }
                 catch
                 {
-                    return RedirectToAction("singin");
+                    Console.WriteLine("error");
+                    return RedirectToAction("singin","project");
                 }
             }
         }

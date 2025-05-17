@@ -3,6 +3,8 @@
 *@
 @{
     List<messages> messageBoard = ViewBag.messages;
+    string name = ViewBag.name;
+    int ID = ViewBag.ID;
 }
 <!DOCTYPE html>
 <html>
@@ -81,12 +83,16 @@
              @foreach (messages a in messageBoard)
                 {
                     @:<li class="base">
-                        <span class="del" style="font-size:15px;color:red">刪除留言</span>
-                        <span class="mod" style="font-size:15px">修改留言</span>
-                        <span class="complain" style="font-size:15px">檢舉留言</span>
-                        <span class="words" id=words>@a.main</span>
-                        <span style="font-size:10px">@a.date.ToString("yyyy/MM/dd HH:mm:ss")</span><br>
+                        <span style="display: none" name="messageID">@a.messageID</span>//訊息編號
+                        <span style="font-size:15px" name="userName">用戶: @a.userName</span>//用戶名
+                        <span class="datetime" style="font-size:10px">@a.date.ToString("yyyy/MM/dd HH:mm:ss")</span>//留言時間
+                        <span class="del" style="font-size:15px;color:red">刪除</span>
+                        <span class="mod" style="font-size:15px">修改</span>
+                        <span class="complain" style="font-size:15px">檢舉</span>
+                        <span class="reply" style="font-size:15px">回覆</span><br>
+                        <span class="words">說: @a.main</span>//用戶留下的訊息
                         <input style="display: none" placeholder="輸入想修改的內容">
+                        <span class="giveup" style="font-size:15px;display: none">放棄修改</span>
                     @:</li>
                 }
             </ol>
@@ -96,7 +102,7 @@
         <div class="item">
             <form action="setMessage" method="post">
                 <input id="textbox" type="text" name="main" placeholder="New message" required>
-                <button id="add">Add Item</button>
+                <button id="add" type="submit">新增留言</button>
             </form>
         </div>
     </cover>
@@ -106,18 +112,21 @@
 <script>
 
     //產生留言
+    var n = dayjs().format("YYYY/MM/DD HH:mm:ss");
+
     function newlist(e) {
         e.preventDefault();
 
         const text = $("#textbox").val();
-        var n = dayjs().format("YYYY/MM/DD HH:mm:ss");
         $(".show ol").append(`
                         <li class="base">
-                            <span class="del" style="font-size:15px;color:red">刪除留言</span>
-                            <span class="mod" style="font-size:15px">修改留言</span>
-                            <span class="complain" style="font-size:15px">檢舉留言</span>
-                            <span class="words" id=words>${text}</span>
-                            <span style="font-size:10px">${n}</span><br>
+                            <span style="font-size:15px" name="userName">用戶: ${@name}</span>
+                            <span class="datetime" style="font-size:10px">${n}</span>
+                            <span class="del" style="font-size:15px;color:red">刪除</span>
+                            <span class="mod" style="font-size:15px">修改</span>
+                            <span class="complain" style="font-size:15px">檢舉</span>
+                            <span class="reply" style="font-size:15px">回覆</span><br>
+                            <span class="words">說: ${text}</span>
                             <input style="display: none" placeholder="輸入想修改的內容">
                             <span class="giveup" style="font-size:15px;display: none">放棄修改</span>
                         </li>`);
@@ -129,8 +138,8 @@
         $("li:last-child .giveup").click(giveUp);
 
         $.ajax({
-            url: "project/setMessage",
-            data: { main: text },
+            url: "/project/setMessage",
+            data: {replyID: 0,userID: @ID,userName: @name,main: text },
             type: 'GET',
             error: err => alert("發生錯誤，請聯絡管理員。")
         })
@@ -182,23 +191,24 @@
     function mod() {
         let num = $(this).parent().index();
         $(`li:nth-child(${num + 1}) input`).show();
-        //$(`li:nth-child(${num + 1}) .giveup`).show();
+        $(`li:nth-child(${num + 1}) .giveup`).show();
         let word = $(`li:nth-child(${num + 1}) input`).val();
-        if (word != "") {
-            $(`li:nth-child(${num + 1}) input`).val('');
+        if (word != '') {
             $(`li:nth-child(${num + 1}) .words`).text(word);
-            $(`li:nth-child(${num + 1}) input`).hide();
 
             $.ajax({
-            url: "project/modMessage",
-            data: { main: word },
+            url: "/project/modMessage",
+            data: { userID: @ID,main: word,date: n },//取得訊息ID
             type: 'GET',
             error: err => alert("發生錯誤，請聯絡管理員。")
             })
+            $("input")[num].value = "";//時間即時更新
+            $(`li:nth-child(${num + 1}) input`).hide();
+            $(`li:nth-child(${num + 1}) .giveup`).hide();
         }
         //當選擇修改另一個留言時，檢查上個修改是否有輸入字，並對使用者做出提示，關閉上個修改留言輸入框
         if(publicNum>-1){
-            if($(`li:nth-child(${publicNum + 1}) input`).val() != ""){
+            if($(`li:nth-child(${publicNum + 1}) input`).val() != "" && publicNum!=num){
                 overLay();
                 theHint();
                 var popUpWindow = "<span class='pop'>上個修改尚未完成。</br>按'是'將刪除上個修改，無法復原。</span><button class='left' id='userNo'>否</button><button class='right' id='userYes'>是</button>";
@@ -209,34 +219,74 @@
                     () => {
                         $("#checkDelcover").remove();
                         $("#checkHint").remove();
+                        $(`li:nth-child(${num + 1}) input`).hide();
+                        $(`li:nth-child(${num + 1}) .giveup`).hide();
                     });
                 $("#userNo").on("click",
                     () => {
                         $("#checkDelcover").remove();
                         $("#checkHint").remove();
                         $(`li:nth-child(${num + 1}) input`).hide();
+                        $(`li:nth-child(${num + 1}) .giveup`).hide();
                     });
                 $("#userYes").on("click",
                     () => {
+                        //清除文字不能用選擇器
+                        $("input")[publicNum].value = "";
                         $(`li:nth-child(${publicNum + 1}) input`).hide();
+                        $(`li:nth-child(${publicNum + 1}) .giveup`).hide();
                         $("#checkDelcover").remove();
                         $("#checkHint").remove();
+                        publicNum=num;
                     });
             }
-            else if(publicNum!=num)
+            else if(publicNum!=num){
                 $(`li:nth-child(${publicNum + 1}) input`).hide();
+                $(`li:nth-child(${publicNum + 1}) .giveup`).hide();
+            }
         }
         if($(`li:nth-child(${publicNum + 1}) input`).val() == "" || publicNum<0)
             publicNum=num;
+
     }
 
     //放棄修改
     function giveUp(){
+        let num = $(this).parent().index();
+        if($(`li:nth-child(${num + 1}) input`).val() != ''){
+        //彈出視窗以外的部分為透明層，防止其他操作
+        overLay();
 
+        //彈出提示視窗確認是否刪除留言
+        theHint();
+        var popUpWindow = "<span class='pop'>是否放棄修改?</br>提醒您，按'是'後無法復原。</span><button class='left' id='userNo'>否</button><button class='right' id='userYes'>是</button>";
+        $("#checkHint").html(popUpWindow);
 
-
-        $(`li:nth-child(${publicNum + 1}) input`).val('');
-        $(`li:nth-child(${publicNum + 1}) input`).hide();
+        //點透明層視同取消，移除彈出畫面、透明層
+        $("#checkDelcover").on("click",
+            () => {
+                $("#checkDelcover").remove();
+                $("#checkHint").remove();
+            });
+        $("#userNo").on("click",
+            () => {
+                $("#checkDelcover").remove();
+                $("#checkHint").remove();
+            });
+        $("#userYes").on("click",
+            () => {
+                //清除文字不能用選擇器
+                $("input")[num].value = "";
+                $(`li:nth-child(${num + 1}) .giveup`).hide();
+                $(`li:nth-child(${num + 1}) input`).hide();
+                $("#checkDelcover").remove();
+                $("#checkHint").remove();
+                publicNum=-1;
+            });
+        }else{
+                $(`li:nth-child(${num + 1}) .giveup`).hide();
+                $(`li:nth-child(${num + 1}) input`).hide();
+        }
     }
 
 
