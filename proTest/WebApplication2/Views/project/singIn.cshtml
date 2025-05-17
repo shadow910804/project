@@ -1,0 +1,120 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <title></title>
+
+</head>
+<style>
+    .pop {
+        position: absolute;
+        top: 40%;
+        left: 50%;
+        transform: translate(-50%, -40%);
+    }
+
+    .left {
+        position: absolute;
+        top: 70%;
+        left: 35%;
+        transform: translate(-35%, -70%);
+    }
+
+    .right {
+        position: absolute;
+        top: 70%;
+        left: 65%;
+        transform: translate(-65%, -70%);
+    }
+
+    #checkDelcover, #checkDelcovers {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.1);
+        z-index: 9998;
+    }
+
+    #checkDel {
+        margin: 0 auto;
+        position: absolute;
+        top: 45%;
+        left: 50%;
+        transform: translate(-50%, -45%);
+        width: 400px;
+        height: 250px;
+        background-color: white;
+        z-index: 9999;
+    }
+
+    #complain {
+        margin: 0 auto;
+        position: absolute;
+        top: 45%;
+        left: 50%;
+        transform: translate(-50%, -45%);
+        width: 400px;
+        height: 100%;
+        background-color: white;
+        z-index: 9999;
+    }
+
+    .detail {
+        width: 300px;
+        height: 400px;
+    }
+</style>
+
+<body>
+        <div class="item">
+            <form action="singin" method="post">
+                <input id="userName" name="userName" placeholder="名字" required>
+                <input id="password" name="password" type="password" placeholder="密碼" required>
+                <button type="submit">登入</button>
+            </form>
+        </div>
+
+        <div class="show">
+            <ol>
+            </ol>
+        </div>
+</body>
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script>
+    function singInShop(e) {
+        e.preventDefault();
+
+        let n = $("#userName").val();
+        let p = $("#password").val();
+
+        $.ajax({
+            url: "singin",
+            data: { userName: n, password: p },
+            type: 'GET',
+            success: res => alert("O"),
+            error: err => alert("發生錯誤，請聯絡管理員。")
+        })
+    }
+
+    $("#usersend").click(singInShop);
+
+
+    $("#password").keypress(e => {
+        if (e.keyCode == 13) {
+            singInShop();
+        }
+    })
+
+</script>
+
+</html>

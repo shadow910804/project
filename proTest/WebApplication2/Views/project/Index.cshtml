@@ -1,0 +1,315 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    List<messages> messageBoard = ViewBag.messages;
+}
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <title></title>
+
+</head>
+<style>
+    .pop {
+        position: absolute;
+        top: 40%;
+        left: 50%;
+        transform: translate(-50%, -40%);
+    }
+
+    .left {
+        position: absolute;
+        top: 70%;
+        left: 35%;
+        transform: translate(-35%, -70%);
+    }
+
+    .right {
+        position: absolute;
+        top: 70%;
+        left: 65%;
+        transform: translate(-65%, -70%);
+    }
+
+    #checkDelcover, #checkDelcovers {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.1);
+        z-index: 9998;
+    }
+    #checkHint {
+        margin: 0 auto;
+        position: absolute;
+        top: 45%;
+        left: 50%;
+        transform: translate(-50%, -45%);
+        width: 400px;
+        height: 250px;
+        background-color: white;
+        z-index: 9999;
+    }
+
+    #complain {
+        margin: 0 auto;
+        position: absolute;
+        top: 45%;
+        left: 50%;
+        transform: translate(-50%, -45%);
+        width: 400px;
+        height: 100%;
+        background-color: white;
+        z-index: 9999;
+    }
+    .detail{
+        width: 300px;
+        height: 400px;
+    }
+</style>
+
+<body>
+    <cover id="cover">
+        <div class="show">
+            <ol>
+             @foreach (messages a in messageBoard)
+                {
+                    @:<li class="base">
+                        <span class="del" style="font-size:15px;color:red">刪除留言</span>
+                        <span class="mod" style="font-size:15px">修改留言</span>
+                        <span class="complain" style="font-size:15px">檢舉留言</span>
+                        <span class="words" id=words>@a.main</span>
+                        <span style="font-size:10px">@a.date.ToString("yyyy/MM/dd HH:mm:ss")</span><br>
+                        <input style="display: none" placeholder="輸入想修改的內容">
+                    @:</li>
+                }
+            </ol>
+        </div>
+
+
+        <div class="item">
+            <form action="setMessage" method="post">
+                <input id="textbox" type="text" name="main" placeholder="New message" required>
+                <button id="add">Add Item</button>
+            </form>
+        </div>
+    </cover>
+</body>
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script src="https://cdn.bootcdn.net/ajax/libs/dayjs/1.4.1/dayjs.min.js"></script>
+<script>
+
+    //產生留言
+    function newlist(e) {
+        e.preventDefault();
+
+        const text = $("#textbox").val();
+        var n = dayjs().format("YYYY/MM/DD HH:mm:ss");
+        $(".show ol").append(`
+                        <li class="base">
+                            <span class="del" style="font-size:15px;color:red">刪除留言</span>
+                            <span class="mod" style="font-size:15px">修改留言</span>
+                            <span class="complain" style="font-size:15px">檢舉留言</span>
+                            <span class="words" id=words>${text}</span>
+                            <span style="font-size:10px">${n}</span><br>
+                            <input style="display: none" placeholder="輸入想修改的內容">
+                            <span class="giveup" style="font-size:15px;display: none">放棄修改</span>
+                        </li>`);
+        $('#textbox').val('');
+        //新留言的刪除、修改、檢舉
+        $("li:last-child .del").click(del);
+        $("li:last-child .mod").click(mod);
+        $("li:last-child .complain").click(complain);
+        $("li:last-child .giveup").click(giveUp);
+
+        $.ajax({
+            url: "project/setMessage",
+            data: { main: text },
+            type: 'GET',
+            error: err => alert("發生錯誤，請聯絡管理員。")
+        })
+    }
+    //先前留言的刪除、修改、檢舉
+    $(".del").click(del);
+    $(".mod").click(mod);
+    $(".complain").click(complain);
+    $(".giveup").click(giveUp);
+
+
+    //刪除留言
+    function del() {
+        let num = $(this).parent().index();
+
+        //彈出視窗以外的部分為透明層，防止其他操作
+        overLay();
+
+        //彈出提示視窗確認是否刪除留言
+        theHint();
+        var popUpWindow = "<span class='pop'>是否刪除留言?</br>提醒您，刪除後無法復原。</span><button class='left' id='userNo'>否</button><button class='right' id='userYes'>是</button>";
+        $("#checkHint").html(popUpWindow);
+
+        //點透明層視同取消，移除彈出畫面、透明層
+        $("#checkDelcover").on("click",
+            () => {
+                $("#checkDelcover").remove();
+                $("#checkHint").remove();
+            });
+        $("#userNo").on("click",
+            () => {
+                $("#checkDelcover").remove();
+                $("#checkHint").remove();
+            });
+        $("#userYes").on("click",
+            () => {
+                //可能會移除到切版，增加class辨別刪除對象
+                $(`li.base:nth-child(${num + 1})`).remove();
+                $("#checkDelcover").remove();
+                $("#checkHint").remove();
+            });
+    }
+
+
+    
+    //修改留言
+    //publicNum設置為(0<)，否則nth-child無法正確選擇
+    let publicNum=-1;
+    function mod() {
+        let num = $(this).parent().index();
+        $(`li:nth-child(${num + 1}) input`).show();
+        //$(`li:nth-child(${num + 1}) .giveup`).show();
+        let word = $(`li:nth-child(${num + 1}) input`).val();
+        if (word != "") {
+            $(`li:nth-child(${num + 1}) input`).val('');
+            $(`li:nth-child(${num + 1}) .words`).text(word);
+            $(`li:nth-child(${num + 1}) input`).hide();
+
+            $.ajax({
+            url: "project/modMessage",
+            data: { main: word },
+            type: 'GET',
+            error: err => alert("發生錯誤，請聯絡管理員。")
+            })
+        }
+        //當選擇修改另一個留言時，檢查上個修改是否有輸入字，並對使用者做出提示，關閉上個修改留言輸入框
+        if(publicNum>-1){
+            if($(`li:nth-child(${publicNum + 1}) input`).val() != ""){
+                overLay();
+                theHint();
+                var popUpWindow = "<span class='pop'>上個修改尚未完成。</br>按'是'將刪除上個修改，無法復原。</span><button class='left' id='userNo'>否</button><button class='right' id='userYes'>是</button>";
+                $("#checkHint").html(popUpWindow);
+
+                //點透明層視同取消，移除彈出畫面、透明層
+                $("#checkDelcover").on("click",
+                    () => {
+                        $("#checkDelcover").remove();
+                        $("#checkHint").remove();
+                    });
+                $("#userNo").on("click",
+                    () => {
+                        $("#checkDelcover").remove();
+                        $("#checkHint").remove();
+                        $(`li:nth-child(${num + 1}) input`).hide();
+                    });
+                $("#userYes").on("click",
+                    () => {
+                        $(`li:nth-child(${publicNum + 1}) input`).hide();
+                        $("#checkDelcover").remove();
+                        $("#checkHint").remove();
+                    });
+            }
+            else if(publicNum!=num)
+                $(`li:nth-child(${publicNum + 1}) input`).hide();
+        }
+        if($(`li:nth-child(${publicNum + 1}) input`).val() == "" || publicNum<0)
+            publicNum=num;
+    }
+
+    //放棄修改
+    function giveUp(){
+
+
+
+        $(`li:nth-child(${publicNum + 1}) input`).val('');
+        $(`li:nth-child(${publicNum + 1}) input`).hide();
+    }
+
+
+
+    //檢舉留言
+    function complain() {
+        //檢舉內容
+        let num = $(this).parent().index();
+        //獲取文字不能用選擇器，會顯示未定義;
+        let str = $(".words")[num].textContent;
+
+        //彈出視窗以外的部分為透明層，防止其他操作
+        overLay();
+
+        //彈出視窗確認是否檢舉留言
+        var hint = document.createElement('div');
+        hint.setAttribute('id', 'complain');
+        document.body.appendChild(hint);
+        var popUpWindow = `<form action='complainSend' method='post'><p style='display:none' name='content'>${str}</p><input class='harassment' name='harassment' type="checkbox" v-model='com'>騷擾<br><input class='pornography' name='pornography' type="checkbox" v-model='com'>色情內容<br><input class='threaten' name='threaten' type="checkbox" v-model='com'>威脅內容<br><input class='Hatred' name='Hatred' type="checkbox" v-model='com'>仇恨或歧視內容<br><textarea class='detail' placeholder='請輸入內容' name='detail'></textarea><button type='submit' id ='usersend'>寄出</button></form>`;
+        $("#complain").html(popUpWindow);
+
+        //點透明層視同取消，移除彈出畫面、透明層
+        $("#checkDelcover").on("click",
+            () => {
+                $("#checkDelcover").remove();
+                $("#complain").remove();
+            });
+
+        
+        function sendData(e) {
+            e.preventDefault();
+            alert("系統處理中，稍後立馬為您送信(您會收到視窗通知)。")
+
+            let h = document.querySelector(".harassment").checked;
+            let p = document.querySelector(".pornography").checked;
+            let t = document.querySelector(".threaten").checked;
+            let H = document.querySelector(".Hatred").checked;
+            let d = $(".detail").val();
+
+            $.ajax({
+                url: "project/complainSend",
+                data: { content: str, harassment: h, pornography: p, threaten: t, Hatred: H, detail:d },
+                type: 'GET',
+                success: res => alert("系統已送信請管理員審核！"),
+                error: err => alert("發生錯誤，請聯絡管理員。")
+            })
+        }
+
+        $("#usersend").click(sendData);
+    }
+
+    //透明層
+    function overLay(){
+        var overlay = document.createElement('div');
+        overlay.setAttribute('id', 'checkDelcover');
+        cover.appendChild(overlay);
+    }
+
+    //提示視窗
+    function theHint(){
+        var hint = document.createElement('div');
+        hint.setAttribute('id', 'checkHint');
+        document.body.appendChild(hint);
+    }
+
+    $("#textbox").keypress(e => {
+        if (e.keyCode == 13) {
+            newlist();
+        }
+    })
+
+    $("#add").click(newlist);
+
+</script>
+
+</html>
