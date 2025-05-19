@@ -42,9 +42,10 @@ namespace WebApplication2.Controllers
         }
 
         //刪除資料庫中的留言
-        public void delMessage(messages l)
+        public void delMessage(messages m)
         {
-            
+            DBmanager dBmanager = new DBmanager();
+            dBmanager.deleteMessage(m);
         }
 
         //修改資料庫中的留言
@@ -55,11 +56,13 @@ namespace WebApplication2.Controllers
         }
 
         //存入留言
-        public void setMessage(messages m)
+        public int setMessage(messages m)
         {
             DBmanager dBmanager = new DBmanager();
             dBmanager.keyinMessage(m);
+            return dBmanager.getNewMessageID(m);
         }
+
 
 
 
