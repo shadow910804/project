@@ -31,6 +31,8 @@ namespace WebApplication2.Models
         public string main { get; set; }
 
         public DateTime date { get; set; } = DateTime.Now;
+
+
     }
 
 

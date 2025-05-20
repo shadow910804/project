@@ -3,6 +3,8 @@ using MailKit.Security;
 using Microsoft.AspNetCore.Mvc;
 using MimeKit;
 using MimeKit.Cryptography;
+using System.Collections.Generic;
+using System.Diagnostics.Eventing.Reader;
 using WebApplication2.Models;
 
 namespace WebApplication2.Controllers
@@ -13,11 +15,40 @@ namespace WebApplication2.Controllers
         public IActionResult Index(account a)
         {
             DBmanager db = new DBmanager();
-            List<messages> messages = new List<messages>(db.getMessages());
+            List<messages> m = new List<messages>(db.getMessages());
+            m.Sort((m1, m2) =>
+            {
+                TimeSpan sp = m1.date - m2.date;
+                if (sp.TotalSeconds > 0)
+                    return -1;
+                else if (sp.TotalSeconds < 0)
+                    return 1;
+                else
+                    return 0;
+            });
+            m.Sort((m1, m2) =>
+            {
+                if (m1.messageID==m2.replyID)
+                    return -1;
+                else
+                    return 0;
+                
+            });
+            
+
             ViewBag.ID = a.ID;
             ViewBag.name = a.userName;
-            ViewBag.messages = messages;
+            ViewBag.messages = m;
             return View();
+        }
+
+        public List<messages> reList(messages m) {
+            List<messages> temp = new List<messages>();
+            if (0 == m.replyID)
+                temp.Add(m);
+
+
+            return temp;
         }
 
         //寄檢舉留言給管理員
