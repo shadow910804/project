@@ -82,9 +82,6 @@
             <ol>
             @foreach (messages a in messageBoard)
             {
-                //@if (a.replyID != 0)
-                //    continue;
-
                 @:<li class="base">
                 <span class="messageID" style="display: none" name="messageID">@a.messageID</span>//訊息編號
                 <span style="font-size:15px" name="userName">用戶: @a.userName</span>//用戶名
@@ -95,29 +92,10 @@
                 <span class="reply" style="font-size:15px">回覆</span><br>
                 <sapn>說: </sapn>
                 <span class="words">@a.main</span>//用戶留下的訊息
-                <input style="display: none" placeholder="輸入想修改的內容">
-                <span class="giveup" style="font-size:15px;display: none">放棄修改</span>
+                <input class="modThis" style="display: none" placeholder="輸入想修改的內容...">
+                <input class="replyThis" style="display: none" placeholder="輸入想回覆的內容...">
+                <span class="giveup" style="font-size:15px;display: none">放棄編輯</span>
                 @:</li>
-
-                @*@foreach (messages b in messageBoard)
-                {
-                    @if (a.messageID == b.replyID)
-                    {
-                        @:<li class="base">
-                        <span class="messageID" style="display: none" name="messageID">@b.messageID</span>//訊息編號
-                        <span style="font-size:15px" name="userName">用戶: @b.userName</span>//用戶名
-                        <span class="datetime" style="font-size:10px">@b.date.ToString("yyyy/MM/dd HH:mm:ss")</span>//留言時間
-                        <span class="del" style="font-size:15px;color:red">刪除</span>
-                        <span class="mod" style="font-size:15px">修改</span>
-                        <span class="complain" style="font-size:15px">檢舉</span>
-                        <span class="reply" style="font-size:15px">回覆</span><br>
-                        <span style="color:blue">回覆:</span>
-                        <span class="words">@b.main</span>//用戶留下的訊息
-                        <input style="display: none" placeholder="輸入想修改的內容">
-                        <span class="giveup" style="font-size:15px;display: none">放棄修改</span>
-                        @:</li>
-                    }
-                }*@
             }
             </ol>
         </div>
@@ -134,7 +112,6 @@
 <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 <script src="https://cdn.bootcdn.net/ajax/libs/dayjs/1.4.1/dayjs.min.js"></script>
 <script>
-
     //取得現在時間
     var n = dayjs().format("YYYY/MM/DD HH:mm:ss");
 
@@ -164,24 +141,18 @@
                             <span class="reply" style="font-size:15px">回覆</span><br>
                             <sapn>說: </sapn>
                             <span class="words">${text}</span>
-                            <input style="display: none" placeholder="輸入想修改的內容">
-                            <span class="giveup" style="font-size:15px;display: none">放棄修改</span>
+                            <input class="modThis" style="display: none" placeholder="輸入想修改的內容...">
+                            <input class="replyThis" style="display: none" placeholder="輸入想回覆的內容...">
+                            <span class="giveup" style="font-size:15px;display: none">放棄編輯</span>
                         </li>`);
         $('#textbox').val('');
         //新留言的刪除、修改、檢舉
         $("li:last-child .del").click(del);
         $("li:last-child .mod").click(mod);
         $("li:last-child .complain").click(complain);
+        $("li:last-child .reply").click(replyMessage);
         $("li:last-child .giveup").click(giveUp);
-
     }
-
-
-    //先前留言的刪除、修改、檢舉
-    $(".del").click(del);
-    $(".mod").click(mod);
-    $(".complain").click(complain);
-    $(".giveup").click(giveUp);
 
 
     //刪除留言
@@ -213,26 +184,26 @@
                 $(`li.base:nth-child(${num + 1})`).remove();
                 $("#checkDelcover").remove();
                 $("#checkHint").remove();
-            });
 
-        let i = $(".messageID")[num].textContent;
-        $.ajax({
-            url: "/project/delMessage",
-            data: { messageID: i,userID: @ID },
-            type: 'GET',
-            error: err => alert("發生錯誤，請聯絡管理員。"),
-        })
+                let i = $(".messageID")[num].textContent;
+                $.ajax({
+                    url: "/project/delMessage",
+                    data: { messageID: i,userID: @ID },
+                    type: 'GET',
+                    error: err => alert("發生錯誤，請聯絡管理員。"),
+                })
+            });
     }
 
     
     //修改留言
-    //publicNum起始設置為(0<)，否則nth-child無法正確選擇
-    let publicNum=-1;
+    //modNum起始設置為(0<)，否則nth-child無法正確選擇
+    let modNum=-1;
     function mod() {
         let num = $(this).parent().index();
-        $(`li:nth-child(${num + 1}) input`).show();
+        $(`li:nth-child(${num + 1}) .modThis`).show();
         $(`li:nth-child(${num + 1}) .giveup`).show();
-        let word = $(`li:nth-child(${num + 1}) input`).val();
+        let word = $(`li:nth-child(${num + 1}) .modThis`).val();
         let i = $(".messageID")[num].textContent;
         if (word != '') {
             $(`li:nth-child(${num + 1}) .words`).text(word);
@@ -243,14 +214,17 @@
             type: 'GET',
             error: err => alert("發生錯誤，請聯絡管理員。")
             })
-            $("input")[num].value = "";//時間即時更新
-            $(`li:nth-child(${num + 1}) input`).hide();
+            $(".modThis")[num].value = "";//時間即時更新
+            $(".datetime")[num].value = n;
+            $(`li:nth-child(${num + 1}) .modThis`).hide();
             $(`li:nth-child(${num + 1}) .giveup`).hide();
         }
         //當選擇修改另一個留言時，檢查上個修改是否有輸入字，並對使用者做出提示，關閉上個修改留言輸入框
-        if(publicNum>-1){
-            if($(`li:nth-child(${publicNum + 1}) input`).val() != "" && publicNum!=num){
+        if(modNum>-1){
+            if($(`li:nth-child(${modNum + 1}) .modThis`).val() != ""){
+                //彈出視窗以外的部分為透明層，防止其他操作
                 overLay();
+                //彈出提示視窗確認是否放棄上個修改，如果上個修改不為空
                 theHint();
                 var popUpWindow = "<span class='pop'>上個修改尚未完成。</br>按'是'將刪除上個修改，無法復原。</span><button class='left' id='userNo'>否</button><button class='right' id='userYes'>是</button>";
                 $("#checkHint").html(popUpWindow);
@@ -260,46 +234,43 @@
                     () => {
                         $("#checkDelcover").remove();
                         $("#checkHint").remove();
-                        $(`li:nth-child(${num + 1}) input`).hide();
+                        $(`li:nth-child(${num + 1}) .modThis`).hide();
                         $(`li:nth-child(${num + 1}) .giveup`).hide();
                     });
                 $("#userNo").on("click",
                     () => {
                         $("#checkDelcover").remove();
                         $("#checkHint").remove();
-                        $(`li:nth-child(${num + 1}) input`).hide();
+                        $(`li:nth-child(${num + 1}) .modThis`).hide();
                         $(`li:nth-child(${num + 1}) .giveup`).hide();
                     });
                 $("#userYes").on("click",
                     () => {
                         //清除文字不能用選擇器
-                        $("input")[publicNum].value = "";
-                        $(`li:nth-child(${publicNum + 1}) input`).hide();
-                        $(`li:nth-child(${publicNum + 1}) .giveup`).hide();
+                        $(".modThis")[modNum].value = "";
+                        $(`li:nth-child(${modNum + 1}) .modThis`).hide();
+                        $(`li:nth-child(${modNum + 1}) .giveup`).hide();
                         $("#checkDelcover").remove();
                         $("#checkHint").remove();
-                        publicNum=num;
+                        modNum=num;
                     });
-            }
-            else if(publicNum!=num){
-                $(`li:nth-child(${publicNum + 1}) input`).hide();
-                $(`li:nth-child(${publicNum + 1}) .giveup`).hide();
+            }else if(modNum!=num){
+                $(`li:nth-child(${modNum + 1}) .modThis`).hide();
+                $(`li:nth-child(${modNum + 1}) .giveup`).hide();
             }
         }
-        if($(`li:nth-child(${publicNum + 1}) input`).val() == "" || publicNum<0)
-            publicNum=num;
-
+        if($(`li:nth-child(${modNum + 1}) .modThis`).val() == "" || modNum<0)
+            modNum=num;
     }
 
 
-    //放棄修改
+    //放棄編輯(回覆、修改)
     function giveUp(){
         let num = $(this).parent().index();
-        if($(`li:nth-child(${num + 1}) input`).val() != ''){
+        if($(`li:nth-child(${num + 1}) .modThis`).val() != '' || $(`li:nth-child(${num + 1 }) .replyThis`).val() != ""){
         //彈出視窗以外的部分為透明層，防止其他操作
         overLay();
-
-        //彈出提示視窗確認是否刪除留言
+        //彈出提示視窗確認是否放棄這則編輯，如果上個這則編輯不為空
         theHint();
         var popUpWindow = "<span class='pop'>是否放棄修改?</br>提醒您，按'是'後無法復原。</span><button class='left' id='userNo'>否</button><button class='right' id='userYes'>是</button>";
         $("#checkHint").html(popUpWindow);
@@ -318,19 +289,21 @@
         $("#userYes").on("click",
             () => {
                 //清除文字不能用選擇器
-                $("input")[num].value = "";
+                $(".modThis")[num].value = "";
+                $(".replyThis")[num].value = "";
+                $(`li:nth-child(${num + 1}) .replyThis`).hide();
                 $(`li:nth-child(${num + 1}) .giveup`).hide();
-                $(`li:nth-child(${num + 1}) input`).hide();
+                $(`li:nth-child(${num + 1}) .modThis`).hide();
                 $("#checkDelcover").remove();
                 $("#checkHint").remove();
-                publicNum=-1;
+                modNum=-1;
             });
         }else{
+                $(`li:nth-child(${num + 1}) .replyThis`).hide();
                 $(`li:nth-child(${num + 1}) .giveup`).hide();
-                $(`li:nth-child(${num + 1}) input`).hide();
+                $(`li:nth-child(${num + 1}) .modThis`).hide();
         }
     }
-
 
     //檢舉留言
     function complain() {
@@ -379,6 +352,99 @@
         $("#usersend").click(sendData);
     }
 
+
+    //回覆留言
+    //回覆也等同於新增留言，立馬取得留言的ID並新增,使用者可能馬上修改留言,ajax改同步執行(async: false)
+    let replyNum=-1;
+    function replyMessage(){
+        let num = $(this).parent().index();
+        $(`li:nth-child(${num + 1}) .replyThis`).show();
+        $(`li:nth-child(${num + 1}) .giveup`).show();
+        let word = $(`li:nth-child(${num + 1}) .replyThis`).val();
+        let i = $(".messageID")[num].textContent;
+        var tempID=0;
+        if (word != '') {
+            $.ajax({
+            url: "/project/setMessage",
+            data: {replyID: i,userID: @ID,userName: @name,main: word,date: n },
+            type: 'GET',
+            async: false,
+            success: (res) =>{tempID=res;},
+            error: err => alert("發生錯誤，請聯絡管理員。")
+            })
+
+            var newReplyMessage=$("ol>li")[num];
+            newReplyMessage.insertAdjacentHTML("afterend",`
+                        <li class="base">
+                            <span class="messageID" style="display: none" name="messageID">${tempID}</span>
+                            <span style="font-size:15px" name="userName">用戶: ${@name}</span>
+                            <span class="datetime" style="font-size:10px">${n}</span>
+                            <span class="del" style="font-size:15px;color:red">刪除</span>
+                            <span class="mod" style="font-size:15px">修改</span>
+                            <span class="complain" style="font-size:15px">檢舉</span>
+                            <span class="reply" style="font-size:15px">回覆</span><br>
+                            <sapn>說: </sapn>
+                            <span class="words">${word}</span>
+                            <input class="modThis" style="display: none" placeholder="輸入想修改的內容...">
+                            <input class="replyThis" style="display: none" placeholder="輸入想回覆的內容...">
+                            <span class="giveup" style="font-size:15px;display: none">放棄編輯</span>
+                        </li>`);
+            
+            $(`li:nth-child(${num + 2}) .del`).click(del);
+            $(`li:nth-child(${num + 2}) .mod`).click(mod);
+            $(`li:nth-child(${num + 2}) .complain`).click(complain);
+            $(`li:nth-child(${num + 2}) .reply`).click(replyMessage);
+            $(`li:nth-child(${num + 2}) .giveup`).click(giveUp);
+
+            $(".replyThis")[num].value = "";
+            $(`li:nth-child(${num + 1}) .replyThis`).hide();
+            $(`li:nth-child(${num + 1}) .giveup`).hide();
+        }
+        if(replyNum>-1){
+            //當選擇回覆另一個留言時，檢查上個回覆是否有輸入字，並對使用者做出提示，關閉上個回覆留言輸入框
+            if($(`li:nth-child(${replyNum + 1 }) .replyThis`).val() != ""){
+                //彈出視窗以外的部分為透明層，防止其他操作
+                overLay();
+
+                //彈出提示視窗確認是否放棄上個回覆，如果上個回覆不為空
+                theHint();
+                var popUpWindow = "<span class='pop'>放棄上個回覆嗎?</br>按'是'後無法復原喔。</span><button class='left' id='userNo'>否</button><button class='right' id='userYes'>是</button>";
+                $("#checkHint").html(popUpWindow);
+
+                //點透明層視同取消，移除彈出畫面、透明層
+                $("#checkDelcover").on("click",
+                    () => {
+                        $("#checkDelcover").remove();
+                        $("#checkHint").remove();
+                        $(`li:nth-child(${num + 1}) .replyThis`).hide();
+                        $(`li:nth-child(${num + 1}) .giveup`).hide();
+                    });
+                $("#userNo").on("click",
+                    () => {
+                        $("#checkDelcover").remove();
+                        $("#checkHint").remove();
+                        $(`li:nth-child(${num + 1}) .replyThis`).hide();
+                        $(`li:nth-child(${num + 1}) .giveup`).hide();
+                    });
+                $("#userYes").on("click",
+                    () => {
+                        //清除文字不能用選擇器
+                        $(".replyThis")[replyNum].value = "";
+                        $(`li:nth-child(${replyNum + 1}) .replyThis`).hide();
+                        $(`li:nth-child(${replyNum + 1}) .giveup`).hide();
+                        $("#checkDelcover").remove();
+                        $("#checkHint").remove();
+                        replyNum=num;
+                    });
+            }else if(replyNum!=num){
+                $(`li:nth-child(${replyNum + 1}) .replyThis`).hide();
+                $(`li:nth-child(${replyNum + 1}) .giveup`).hide();
+            }
+        }
+        if($(`li:nth-child(${replyNum + 1}) .replyThis`).val() == "" || replyNum<0)
+            replyNum=num;
+    }
+
     //透明層
     function overLay(){
         var overlay = document.createElement('div');
@@ -392,6 +458,14 @@
         hint.setAttribute('id', 'checkHint');
         document.body.appendChild(hint);
     }
+
+    //先前留言的刪除、修改、檢舉
+    $(".del").click(del);
+    $(".mod").click(mod);
+    $(".complain").click(complain);
+    $(".reply").click(replyMessage);
+    $(".giveup").click(giveUp);
+
 
     $("#textbox").keypress(e => {
         if (e.keyCode == 13) {

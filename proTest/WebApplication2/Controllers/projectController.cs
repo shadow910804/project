@@ -16,8 +16,31 @@ namespace WebApplication2.Controllers
         {
             DBmanager db = new DBmanager();
             List<messages> m = new List<messages>(db.getMessages());
+
+            List<messages> mTemp = new List<messages>(m);
+            m.Clear();
+            foreach (messages mergeReplyNotZero in mTemp)
+            {
+                foreach (messages replyNotZero in mTemp)
+                {
+                    if (mergeReplyNotZero.messageID == replyNotZero.replyID)
+                    {
+                        if (!m.Exists(x => x == replyNotZero))
+                            m.Insert(m.IndexOf(mergeReplyNotZero) + 1, replyNotZero);
+                    }
+                    else if (mergeReplyNotZero.replyID == replyNotZero.messageID)
+                    {
+                        if (!m.Exists(x => x == mergeReplyNotZero))
+                            m.Insert(m.IndexOf(replyNotZero) + 1, replyNotZero);
+                    }
+                    else if(!m.Exists(x => x == mergeReplyNotZero) && !m.Exists(x => x == replyNotZero))
+                        m.Add(mergeReplyNotZero);
+                }
+            }
             m.Sort((m1, m2) =>
             {
+                if (m1.messageID == m2.replyID || m1.replyID == m2.messageID)
+                    return 0;
                 TimeSpan sp = m1.date - m2.date;
                 if (sp.TotalSeconds > 0)
                     return -1;
@@ -26,15 +49,7 @@ namespace WebApplication2.Controllers
                 else
                     return 0;
             });
-            m.Sort((m1, m2) =>
-            {
-                if (m1.messageID==m2.replyID)
-                    return -1;
-                else
-                    return 0;
-                
-            });
-            
+
 
             ViewBag.ID = a.ID;
             ViewBag.name = a.userName;
@@ -86,14 +101,13 @@ namespace WebApplication2.Controllers
             dBmanager.fixMessage(m);
         }
 
-        //存入留言
+        //存入留言(回覆)
         public int setMessage(messages m)
         {
             DBmanager dBmanager = new DBmanager();
             dBmanager.keyinMessage(m);
             return dBmanager.getNewMessageID(m);
         }
-
 
 
 
