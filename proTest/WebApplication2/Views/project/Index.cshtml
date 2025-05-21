@@ -85,13 +85,19 @@
                 @:<li class="base">
                 <span class="messageID" style="display: none" name="messageID">@a.messageID</span>//訊息編號
                 <span style="font-size:15px" name="userName">用戶: @a.userName</span>//用戶名
-                <span class="datetime" style="font-size:10px">@a.date.ToString("yyyy/MM/dd HH:mm:ss")</span>//留言時間
+                <span class="datetime" style="font-size:10px">@a.date.ToString("yyyy/MM/dd HH:mm:ss")</span>
+                //留言時間
                 <span class="del" style="font-size:15px;color:red">刪除</span>
                 <span class="mod" style="font-size:15px">修改</span>
                 <span class="complain" style="font-size:15px">檢舉</span>
                 <span class="reply" style="font-size:15px">回覆</span><br>
-                <sapn>說: </sapn>
-                <span class="words">@a.main</span>//用戶留下的訊息
+                    @if (a.replyID==0) {
+                        <sapn>說: </sapn>
+                    }
+                    else{
+                        <sapn>回覆: </sapn>
+                    }
+                    <span class="words">@a.main</span>//用戶留下的訊息
                 <input class="modThis" style="display: none" placeholder="輸入想修改的內容...">
                 <input class="replyThis" style="display: none" placeholder="輸入想回覆的內容...">
                 <span class="giveup" style="font-size:15px;display: none">放棄編輯</span>
@@ -383,7 +389,7 @@
                             <span class="mod" style="font-size:15px">修改</span>
                             <span class="complain" style="font-size:15px">檢舉</span>
                             <span class="reply" style="font-size:15px">回覆</span><br>
-                            <sapn>說: </sapn>
+                            <sapn>回覆: </sapn>
                             <span class="words">${word}</span>
                             <input class="modThis" style="display: none" placeholder="輸入想修改的內容...">
                             <input class="replyThis" style="display: none" placeholder="輸入想回覆的內容...">
