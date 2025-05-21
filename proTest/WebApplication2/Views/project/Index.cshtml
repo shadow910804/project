@@ -118,19 +118,18 @@
 <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 <script src="https://cdn.bootcdn.net/ajax/libs/dayjs/1.4.1/dayjs.min.js"></script>
 <script>
-    //取得現在時間
-    var n = dayjs().format("YYYY/MM/DD HH:mm:ss");
-
     //產生留言
     function newlist(e) {
         e.preventDefault();
 
+        //取得現在時間
+        var getNowTime = dayjs().format("YYYY/MM/DD HH:mm:ss");
         //新增留言後立馬取得留言的ID並新增,使用者可能馬上修改留言,ajax改同步執行(async: false)
         var tempID=0;
         const text = $("#textbox").val();
         $.ajax({
             url: "/project/setMessage",
-            data: {replyID: 0,userID: @ID,userName: @name,main: text,date: n },
+            data: {replyID: 0,userID: @ID,userName: @name,main: text,date: getNowTime },
             type: 'GET',
             async: false,
             success: (res) =>{tempID=res;},
@@ -140,7 +139,7 @@
                         <li class="base">
                             <span class="messageID" style="display: none" name="messageID">${tempID}</span>
                             <span style="font-size:15px" name="userName">用戶: ${@name}</span>
-                            <span class="datetime" style="font-size:10px">${n}</span>
+                            <span class="datetime" style="font-size:10px">${getNowTime}</span>
                             <span class="del" style="font-size:15px;color:red">刪除</span>
                             <span class="mod" style="font-size:15px">修改</span>
                             <span class="complain" style="font-size:15px">檢舉</span>
@@ -211,17 +210,20 @@
         $(`li:nth-child(${num + 1}) .giveup`).show();
         let word = $(`li:nth-child(${num + 1}) .modThis`).val();
         let i = $(".messageID")[num].textContent;
+        //取得現在時間
+        var getNowTime = dayjs().format("YYYY/MM/DD HH:mm:ss");
         if (word != '') {
             $(`li:nth-child(${num + 1}) .words`).text(word);
 
             $.ajax({
             url: "/project/modMessage",
-            data: { messageID: i, userID: @ID,main: word,date: n },
+            data: { messageID: i, userID: @ID,main: word,date: getNowTime },
             type: 'GET',
             error: err => alert("發生錯誤，請聯絡管理員。")
             })
-            $(".modThis")[num].value = "";//時間即時更新
-            $(".datetime")[num].value = n;
+            $(".modThis")[num].value = "";
+            //時間即時更新
+            $(`li:nth-child(${num + 1}) .datetime`).html(getNowTime);
             $(`li:nth-child(${num + 1}) .modThis`).hide();
             $(`li:nth-child(${num + 1}) .giveup`).hide();
         }
@@ -311,6 +313,7 @@
         }
     }
 
+
     //檢舉留言
     function complain() {
         //檢舉內容
@@ -368,11 +371,13 @@
         $(`li:nth-child(${num + 1}) .giveup`).show();
         let word = $(`li:nth-child(${num + 1}) .replyThis`).val();
         let i = $(".messageID")[num].textContent;
+        //取得現在時間
+        var getNowTime = dayjs().format("YYYY/MM/DD HH:mm:ss");
         var tempID=0;
         if (word != '') {
             $.ajax({
             url: "/project/setMessage",
-            data: {replyID: i,userID: @ID,userName: @name,main: word,date: n },
+            data: {replyID: i,userID: @ID,userName: @name,main: word,date: getNowTime },
             type: 'GET',
             async: false,
             success: (res) =>{tempID=res;},
@@ -384,7 +389,7 @@
                         <li class="base">
                             <span class="messageID" style="display: none" name="messageID">${tempID}</span>
                             <span style="font-size:15px" name="userName">用戶: ${@name}</span>
-                            <span class="datetime" style="font-size:10px">${n}</span>
+                            <span class="datetime" style="font-size:10px">${getNowTime}</span>
                             <span class="del" style="font-size:15px;color:red">刪除</span>
                             <span class="mod" style="font-size:15px">修改</span>
                             <span class="complain" style="font-size:15px">檢舉</span>
