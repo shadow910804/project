@@ -82,7 +82,7 @@
             <ol>
             @foreach (messages a in messageBoard)
             {
-                @:<li class="base">
+                @:<li class="messageBase">
                 <span class="messageID" style="display: none" name="messageID">@a.messageID</span>//訊息編號
                 <span style="font-size:15px" name="userName">用戶: @a.userName</span>//用戶名
                 <span class="datetime" style="font-size:10px">@a.date.ToString("yyyy/MM/dd HH:mm:ss")</span>
@@ -97,7 +97,7 @@
                     else{
                         <sapn>回覆: </sapn>
                     }
-                    <span class="words">@a.main</span>//用戶留下的訊息
+                    <span class="messageWords">@a.main</span>//用戶留下的訊息
                 <input class="modThis" style="display: none" placeholder="輸入想修改的內容...">
                 <input class="replyThis" style="display: none" placeholder="輸入想回覆的內容...">
                 <span class="giveup" style="font-size:15px;display: none">放棄編輯</span>
@@ -107,11 +107,9 @@
         </div>
 
 
-        <div class="item">
-            <form action="setMessage" method="post">
-                <input id="textbox" type="text" name="main" placeholder="New message" required>
-                <button id="add" type="submit">新增留言</button>
-            </form>
+        <div>
+            <input id="NewMeessage" type="text" name="main" placeholder="New message">
+            <button id="addNewMeessage" type="submit">新增留言</button>
         </div>
     </cover>
 </body>
@@ -120,43 +118,50 @@
 <script>
     //產生留言
     function newlist(e) {
-        e.preventDefault();
 
         //取得現在時間
         var getNowTime = dayjs().format("YYYY/MM/DD HH:mm:ss");
         //新增留言後立馬取得留言的ID並新增,使用者可能馬上修改留言,ajax改同步執行(async: false)
-        var tempID=0;
-        const text = $("#textbox").val();
-        $.ajax({
-            url: "/project/setMessage",
-            data: {replyID: 0,userID: @ID,userName: @name,main: text,date: getNowTime },
-            type: 'GET',
-            async: false,
-            success: (res) =>{tempID=res;},
-            error: err => alert("發生錯誤，請聯絡管理員。"),
-        })
-        $(".show ol").append(`
-                        <li class="base">
-                            <span class="messageID" style="display: none" name="messageID">${tempID}</span>
-                            <span style="font-size:15px" name="userName">用戶: ${@name}</span>
-                            <span class="datetime" style="font-size:10px">${getNowTime}</span>
-                            <span class="del" style="font-size:15px;color:red">刪除</span>
-                            <span class="mod" style="font-size:15px">修改</span>
-                            <span class="complain" style="font-size:15px">檢舉</span>
-                            <span class="reply" style="font-size:15px">回覆</span><br>
-                            <sapn>說: </sapn>
-                            <span class="words">${text}</span>
-                            <input class="modThis" style="display: none" placeholder="輸入想修改的內容...">
-                            <input class="replyThis" style="display: none" placeholder="輸入想回覆的內容...">
-                            <span class="giveup" style="font-size:15px;display: none">放棄編輯</span>
-                        </li>`);
-        $('#textbox').val('');
-        //新留言的刪除、修改、檢舉
-        $("li:last-child .del").click(del);
-        $("li:last-child .mod").click(mod);
-        $("li:last-child .complain").click(complain);
-        $("li:last-child .reply").click(replyMessage);
-        $("li:last-child .giveup").click(giveUp);
+        var getMessageID=0;
+        const catchNewMessage = $("#NewMeessage").val();
+        if(catchNewMessage != ""){
+            var errorMessage = false;
+            $.ajax({
+                url: "/project/setMessage",
+                data: {replyID: 0,userID: @ID,userName: @name,main: catchNewMessage,date: getNowTime },
+                type: 'GET',
+                async: false,
+                success: (res) =>{getMessageID=res;},
+                error: err => {errorMessage = true;},
+            })
+            if(errorMessage){
+                alert("發生錯誤，請聯絡管理員。");
+            }
+            else{
+                $(".show ol").append(`
+                                <li class="messageBase">
+                                    <span class="messageID" style="display: none" name="messageID">${getMessageID}</span>
+                                    <span style="font-size:15px" name="userName">用戶: ${@name}</span>
+                                    <span class="datetime" style="font-size:10px">${getNowTime}</span>
+                                    <span class="del" style="font-size:15px;color:red">刪除</span>
+                                    <span class="mod" style="font-size:15px">修改</span>
+                                    <span class="complain" style="font-size:15px">檢舉</span>
+                                    <span class="reply" style="font-size:15px">回覆</span><br>
+                                    <sapn>說: </sapn>
+                                    <span class="messageWords">${catchNewMessage}</span>
+                                    <input class="modThis" style="display: none" placeholder="輸入想修改的內容...">
+                                    <input class="replyThis" style="display: none" placeholder="輸入想回覆的內容...">
+                                    <span class="giveup" style="font-size:15px;display: none">放棄編輯</span>
+                                </li>`);
+                $('#NewMeessage').val('');
+                //新留言的刪除、修改、檢舉
+                $("li:last-child .del").click(del);
+                $("li:last-child .mod").click(mod);
+                $("li:last-child .complain").click(complain);
+                $("li:last-child .reply").click(replyMessage);
+                $("li:last-child .giveup").click(giveUp);
+            }
+        }
     }
 
 
@@ -186,7 +191,7 @@
         $("#userYes").on("click",
             () => {
                 //可能會移除到切版，增加class辨別刪除對象
-                $(`li.base:nth-child(${num + 1})`).remove();
+                $(`li.messageBase:nth-child(${num + 1})`).remove();
                 $("#checkDelcover").remove();
                 $("#checkHint").remove();
 
@@ -205,19 +210,60 @@
     //modNum起始設置為(0<)，否則nth-child無法正確選擇
     let modNum=-1;
     function mod() {
+        //檢查上回覆是否有輸入值
+        if($(`li:nth-child(${replyNum + 1 }) .replyThis`).val() != "" && replyNum!=-1){
+            //彈出視窗以外的部分為透明層，防止其他操作
+            overLay();
+
+            //彈出提示視窗確認是否放棄上個回覆，如果上個回覆不為空
+            theHint();
+            var popUpWindow = "<span class='pop'>放棄上個回覆嗎?</br>按'是'後無法復原喔。</span><button class='left' id='userNo'>否</button><button class='right' id='userYes'>是</button>";
+            $("#checkHint").html(popUpWindow);
+
+            //點透明層視同取消，移除彈出畫面、透明層
+            $("#checkDelcover").on("click",
+                () => {
+                    $("#checkDelcover").remove();
+                    $("#checkHint").remove();
+                    $(`li:nth-child(${num + 1}) .modThis`).hide();
+                    $(`li:nth-child(${num + 1}) .giveup`).hide();
+                });
+            $("#userNo").on("click",
+                () => {
+                    $("#checkDelcover").remove();
+                    $("#checkHint").remove();
+                    $(`li:nth-child(${num + 1}) .modThis`).hide();
+                    $(`li:nth-child(${num + 1}) .giveup`).hide();
+                });
+            $("#userYes").on("click",
+                () => {
+                    //清除文字不能用選擇器
+                    $(".replyThis")[replyNum].value = "";
+                    $(`li:nth-child(${replyNum + 1}) .replyThis`).hide();
+                    $(`li:nth-child(${replyNum + 1}) .giveup`).hide();
+                    $("#checkDelcover").remove();
+                    $("#checkHint").remove();
+                    replyNum=-1;
+                });
+        }else if(replyNum>-1){
+                $(`li:nth-child(${replyNum + 1}) .replyThis`).hide();
+                $(`li:nth-child(${replyNum + 1}) .giveup`).hide();
+        }
+
+        //修改留言正文
         let num = $(this).parent().index();
         $(`li:nth-child(${num + 1}) .modThis`).show();
         $(`li:nth-child(${num + 1}) .giveup`).show();
-        let word = $(`li:nth-child(${num + 1}) .modThis`).val();
+        let getThisModText = $(`li:nth-child(${num + 1}) .modThis`).val();
         let i = $(".messageID")[num].textContent;
         //取得現在時間
         var getNowTime = dayjs().format("YYYY/MM/DD HH:mm:ss");
-        if (word != '') {
-            $(`li:nth-child(${num + 1}) .words`).text(word);
+        if (getThisModText != '') {
+            $(`li:nth-child(${num + 1}) .messageWords`).text(getThisModText);
 
             $.ajax({
             url: "/project/modMessage",
-            data: { messageID: i, userID: @ID,main: word,date: getNowTime },
+            data: { messageID: i, userID: @ID,main: getThisModText,date: getNowTime },
             type: 'GET',
             error: err => alert("發生錯誤，請聯絡管理員。")
             })
@@ -319,7 +365,7 @@
         //檢舉內容
         let num = $(this).parent().index();
         //獲取文字不能用選擇器，會顯示未定義;
-        let str = $(".words")[num].textContent;
+        let str = $(".messageWords")[num].textContent;
 
         //彈出視窗以外的部分為透明層，防止其他操作
         overLay();
@@ -366,50 +412,96 @@
     //回覆也等同於新增留言，立馬取得留言的ID並新增,使用者可能馬上修改留言,ajax改同步執行(async: false)
     let replyNum=-1;
     function replyMessage(){
+        //檢查上修改是否有輸入值
+        if($(`li:nth-child(${modNum + 1 }) .modThis`).val() != "" && modNum!=-1){
+            //彈出視窗以外的部分為透明層，防止其他操作
+            overLay();
+
+            //彈出提示視窗確認是否放棄上個修改，如果上個修改不為空
+            theHint();
+            var popUpWindow = "<span class='pop'>放棄上個修改嗎?</br>按'是'後無法復原喔。</span><button class='left' id='userNo'>否</button><button class='right' id='userYes'>是</button>";
+            $("#checkHint").html(popUpWindow);
+
+            //點透明層視同取消，移除彈出畫面、透明層
+            $("#checkDelcover").on("click",
+                () => {
+                    $("#checkDelcover").remove();
+                    $("#checkHint").remove();
+                    $(`li:nth-child(${num + 1}) .replyThis`).hide();
+                    $(`li:nth-child(${num + 1}) .giveup`).hide();
+                });
+            $("#userNo").on("click",
+                () => {
+                    $("#checkDelcover").remove();
+                    $("#checkHint").remove();
+                    $(`li:nth-child(${num + 1}) .replyThis`).hide();
+                    $(`li:nth-child(${num + 1}) .giveup`).hide();
+                });
+            $("#userYes").on("click",
+                () => {
+                    //清除文字不能用選擇器
+                    $(".modThis")[modNum].value = "";
+                    $(`li:nth-child(${modNum + 1}) .modThis`).hide();
+                    $(`li:nth-child(${modNum + 1}) .giveup`).hide();
+                    $("#checkDelcover").remove();
+                    $("#checkHint").remove();
+                    modNum=-1;
+                });
+        }else if(modNum>-1){
+                $(`li:nth-child(${modNum + 1}) .modThis`).hide();
+                $(`li:nth-child(${modNum + 1}) .giveup`).hide();
+        }
+
+        //回覆留言正文
         let num = $(this).parent().index();
         $(`li:nth-child(${num + 1}) .replyThis`).show();
         $(`li:nth-child(${num + 1}) .giveup`).show();
-        let word = $(`li:nth-child(${num + 1}) .replyThis`).val();
+        let getThisReplyText = $(`li:nth-child(${num + 1}) .replyThis`).val();
         let i = $(".messageID")[num].textContent;
         //取得現在時間
         var getNowTime = dayjs().format("YYYY/MM/DD HH:mm:ss");
-        var tempID=0;
-        if (word != '') {
+        var getMessageID=0;
+        if (getThisReplyText != '') {
+            var errorMessage = false;
             $.ajax({
             url: "/project/setMessage",
-            data: {replyID: i,userID: @ID,userName: @name,main: word,date: getNowTime },
+            data: {replyID: i,userID: @ID,userName: @name,main: getThisReplyText,date: getNowTime },
             type: 'GET',
             async: false,
-            success: (res) =>{tempID=res;},
-            error: err => alert("發生錯誤，請聯絡管理員。")
+            success: (res) =>{getMessageID=res;},
+            error: err => {errorMessage = true;}
             })
-
-            var newReplyMessage=$("ol>li")[num];
-            newReplyMessage.insertAdjacentHTML("afterend",`
-                        <li class="base">
-                            <span class="messageID" style="display: none" name="messageID">${tempID}</span>
-                            <span style="font-size:15px" name="userName">用戶: ${@name}</span>
-                            <span class="datetime" style="font-size:10px">${getNowTime}</span>
-                            <span class="del" style="font-size:15px;color:red">刪除</span>
-                            <span class="mod" style="font-size:15px">修改</span>
-                            <span class="complain" style="font-size:15px">檢舉</span>
-                            <span class="reply" style="font-size:15px">回覆</span><br>
-                            <sapn>回覆: </sapn>
-                            <span class="words">${word}</span>
-                            <input class="modThis" style="display: none" placeholder="輸入想修改的內容...">
-                            <input class="replyThis" style="display: none" placeholder="輸入想回覆的內容...">
-                            <span class="giveup" style="font-size:15px;display: none">放棄編輯</span>
-                        </li>`);
+            if(errorMessage){
+                alert("發生錯誤，請聯絡管理員。");
+            }
+            else{
+                var newReplyMessage=$("ol>li")[num];
+                newReplyMessage.insertAdjacentHTML("afterend",`
+                            <li class="messageBase">
+                                <span class="messageID" style="display: none" name="messageID">${getMessageID}</span>
+                                <span style="font-size:15px" name="userName">用戶: ${@name}</span>
+                                <span class="datetime" style="font-size:10px">${getNowTime}</span>
+                                <span class="del" style="font-size:15px;color:red">刪除</span>
+                                <span class="mod" style="font-size:15px">修改</span>
+                                <span class="complain" style="font-size:15px">檢舉</span>
+                                <span class="reply" style="font-size:15px">回覆</span><br>
+                                <sapn>回覆: </sapn>
+                                <span class="messageWords">${getThisReplyText}</span>
+                                <input class="modThis" style="display: none" placeholder="輸入想修改的內容...">
+                                <input class="replyThis" style="display: none" placeholder="輸入想回覆的內容...">
+                                <span class="giveup" style="font-size:15px;display: none">放棄編輯</span>
+                            </li>`);
             
-            $(`li:nth-child(${num + 2}) .del`).click(del);
-            $(`li:nth-child(${num + 2}) .mod`).click(mod);
-            $(`li:nth-child(${num + 2}) .complain`).click(complain);
-            $(`li:nth-child(${num + 2}) .reply`).click(replyMessage);
-            $(`li:nth-child(${num + 2}) .giveup`).click(giveUp);
+                $(`li:nth-child(${num + 2}) .del`).click(del);
+                $(`li:nth-child(${num + 2}) .mod`).click(mod);
+                $(`li:nth-child(${num + 2}) .complain`).click(complain);
+                $(`li:nth-child(${num + 2}) .reply`).click(replyMessage);
+                $(`li:nth-child(${num + 2}) .giveup`).click(giveUp);
 
-            $(".replyThis")[num].value = "";
-            $(`li:nth-child(${num + 1}) .replyThis`).hide();
-            $(`li:nth-child(${num + 1}) .giveup`).hide();
+                $(".replyThis")[num].value = "";
+                $(`li:nth-child(${num + 1}) .replyThis`).hide();
+                $(`li:nth-child(${num + 1}) .giveup`).hide();
+            }
         }
         if(replyNum>-1){
             //當選擇回覆另一個留言時，檢查上個回覆是否有輸入字，並對使用者做出提示，關閉上個回覆留言輸入框
@@ -456,6 +548,7 @@
             replyNum=num;
     }
 
+
     //透明層
     function overLay(){
         var overlay = document.createElement('div');
@@ -478,13 +571,13 @@
     $(".giveup").click(giveUp);
 
 
-    $("#textbox").keypress(e => {
+    $("#NewMeessage").keypress(e => {
         if (e.keyCode == 13) {
             newlist();
         }
     })
 
-    $("#add").click(newlist);
+    $("#addNewMeessage").click(newlist);
 
 </script>
 

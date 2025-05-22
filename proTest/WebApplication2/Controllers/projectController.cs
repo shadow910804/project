@@ -57,14 +57,6 @@ namespace WebApplication2.Controllers
             return View();
         }
 
-        public List<messages> reList(messages m) {
-            List<messages> temp = new List<messages>();
-            if (0 == m.replyID)
-                temp.Add(m);
-
-
-            return temp;
-        }
 
         //寄檢舉留言給管理員
         public void complainSend(letter l)
