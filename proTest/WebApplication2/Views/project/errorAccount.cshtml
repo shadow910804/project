@@ -4,61 +4,57 @@
 @{
 }
 <!DOCTYPE html>
-<html>
-
+<html lang="en">
 <head>
-
     <meta charset="UTF-8">
+    <title>留言評價系統</title>
+    <style>
+    .stars span {
+        font-size: 2rem;
+        cursor: pointer;
+        color: gray;
+    }
 
-    <title></title>
+    .stars span.selected,
+    .stars span:hover,
+    .stars span:hover ~ span {
+        color: gold;
+    }
 
+    .star-rating .star.half {
+        background-position: -20px 0;
+    }
+    </style>
 </head>
-
 <body>
-aaaaaaaaaaaaaaaa
+    <div id="rating-system">
+        <div class="stars">
+            <span data-value="1">★</span>
+            <span data-value="2">★</span>
+            <span data-value="3">★</span>
+            <span data-value="4">★</span>
+            <span data-value="5">★</span>
+        </div>
+        <textarea id="comment" placeholder="請留下您的評論"></textarea>
+        <button id="submit-rating">提交</button>
+    </div>
+    <div id="result"></div>
 </body>
-<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
-<script>
-    //可以正確選擇元素的方法,找父元素用>搜尋子元素,或新增class
-    //$(`ol>li:nth-child(${num + 2})>input`).val();
-    //$(`li.base:nth-child(${num + 1})`).remove();
-    //範例↑
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script>
 
+        (".star-rating .star").hover(function (e) {
+            var position = e.pageX - (this).offset().left;
+            if (position <= (this).width() / 2) {
+                (this).addClass("half");
+            } else {
+                $(this).removeClass("half");
+            }
+        })
 
-
-
-
-
-
-
-
-
-
-
-    //function singInShop(e) {
-        //e.preventDefault();
-
-        //let n = $("#userName").val();
-        //let p = $("#password").val();
-
-        //$.ajax({
-            //url: "project/singIn",
-            //data: { userName: n, password: p },
-            //type: 'POST',
-            //success: res => $(".show").text(res),
-            //error: err => alert("發生錯誤，請聯絡管理員。")
-        //})
-    //}
-
-    //$("#usersend").click(singInShop);
-
-
-    //$("#password").keypress(e => {
-        //if (e.keyCode == 13) {
-            //singInShop();
-        //}
-    //})
-
-</script>
-
+        //可以正確選擇元素的方法,找父元素用>搜尋子元素,或新增class
+        //$(`ol>li:nth-child(${num + 2})>input`).val();
+        //$(`li.base:nth-child(${num + 1})`).remove();
+        //範例↑
+    </script>
 </html>

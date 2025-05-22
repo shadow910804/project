@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Security.Principal;
@@ -32,9 +33,11 @@ namespace WebApplication2.Models
                     {
                         messageID = reader.GetInt32(reader.GetOrdinal("messageID")),
                         replyID = reader.GetInt32(reader.GetOrdinal("replyID")),
+                        productID = reader.GetInt32(reader.GetOrdinal("productID")),
                         userName = reader.GetString(reader.GetOrdinal("userName")),
                         main = reader.GetString(reader.GetOrdinal("main")),
-                        date = reader.GetDateTime(reader.GetOrdinal("date"))
+                        date = reader.GetDateTime(reader.GetOrdinal("date")),
+                        score = reader.GetDouble(reader.GetOrdinal("score"))
                     };
                     m.Add(account);
                 }
@@ -53,14 +56,16 @@ namespace WebApplication2.Models
         public void keyinMessage(messages m)
         {
             SqlConnection sqlconnection = new SqlConnection(connStr);
-            SqlCommand sqlcommand = new SqlCommand(@"INSERT INTO message(replyID,userID,userName,main,date) VALUES(@replyID,@userID,@userName,@main,@date)");
+            SqlCommand sqlcommand = new SqlCommand(@"INSERT INTO message(replyID,userID,productID,userName,main,date,score) VALUES(@replyID,@userID,@productID,@userName,@main,@date,@score)");
             sqlcommand.Connection = sqlconnection;
 
             sqlcommand.Parameters.Add(new SqlParameter("@replyID", m.replyID));
             sqlcommand.Parameters.Add(new SqlParameter("@userID", m.userID));
+            sqlcommand.Parameters.Add(new SqlParameter("@productID", m.productID));
             sqlcommand.Parameters.Add(new SqlParameter("@userName", m.userName));
             sqlcommand.Parameters.Add(new SqlParameter("@main", m.main));
             sqlcommand.Parameters.Add(new SqlParameter("@date", m.date));
+            sqlcommand.Parameters.Add(new SqlParameter("@score", m.score));
 
             sqlconnection.Open();
             sqlcommand.ExecuteNonQuery();
@@ -103,13 +108,14 @@ namespace WebApplication2.Models
         public void fixMessage(messages m)
         {
             SqlConnection sqlconnection = new SqlConnection(connStr);
-            SqlCommand sqlcommand = new SqlCommand(@"UPDATE message SET main = @main,date = @date WHERE userID = @i AND messageID = @m");
+            SqlCommand sqlcommand = new SqlCommand(@"UPDATE message SET main = @main,date = @date,score = @score WHERE userID = @i AND messageID = @m");
             sqlcommand.Connection = sqlconnection;
 
             sqlcommand.Parameters.Add(new SqlParameter("@m", m.messageID));
             sqlcommand.Parameters.Add(new SqlParameter("@i", m.userID));
             sqlcommand.Parameters.Add(new SqlParameter("@main", m.main));
             sqlcommand.Parameters.Add(new SqlParameter("@date", m.date));
+            sqlcommand.Parameters.Add(new SqlParameter("@score", m.score));
 
             sqlconnection.Open();
             sqlcommand.ExecuteNonQuery();
@@ -133,6 +139,9 @@ namespace WebApplication2.Models
             sqlconnection.Close();
         }
         //刪除留言↑
+
+
+
 
 
         //取得回覆↓(舊版
@@ -201,8 +210,6 @@ namespace WebApplication2.Models
             sqlConnection.Close();
             throw new Exception();
         }
-
-
 
         public void newAccount(account user)
         {

@@ -17,6 +17,24 @@
 
 </head>
 <style>
+    .stars {
+        display: flex;
+        cursor: pointer;
+    }
+
+    .stars span {
+        font-size: 2rem;
+        color: gray;
+    }
+
+    .stars span.selected {
+        color: gold;
+    }
+
+    .notNewStars{
+        color: gold;
+    }
+
     .pop {
         position: absolute;
         top: 40%;
@@ -83,7 +101,8 @@
             @foreach (messages a in messageBoard)
             {
                 @:<li class="messageBase">
-                <span class="messageID" style="display: none" name="messageID">@a.messageID</span>//訊息編號
+                <span class="messageID" style="display: none" name="messageID">@a.messageID</span>
+                //訊息編號
                 <span style="font-size:15px" name="userName">用戶: @a.userName</span>//用戶名
                 <span class="datetime" style="font-size:10px">@a.date.ToString("yyyy/MM/dd HH:mm:ss")</span>
                 //留言時間
@@ -91,22 +110,38 @@
                 <span class="mod" style="font-size:15px">修改</span>
                 <span class="complain" style="font-size:15px">檢舉</span>
                 <span class="reply" style="font-size:15px">回覆</span><br>
-                    @if (a.replyID==0) {
-                        <sapn>說: </sapn>
-                    }
-                    else{
-                        <sapn>回覆: </sapn>
-                    }
-                    <span class="messageWords">@a.main</span>//用戶留下的訊息
+                @if (a.replyID==0) {
+                    <sapn>說: </sapn>
+                }
+                else{
+                    <sapn>回覆: </sapn>
+                }
+                <span class="messageWords">@a.main</span><br>
+                string star = new string('★',(int)@a.score)+new string('☆',(int)(5-@a.score));
+                <span>評分：</span><span class="notNewStars">@star</span>
                 <input class="modThis" style="display: none" placeholder="輸入想修改的內容...">
                 <input class="replyThis" style="display: none" placeholder="輸入想回覆的內容...">
                 <span class="giveup" style="font-size:15px;display: none">放棄編輯</span>
+                <div class="stars modStarRating" style="display: none">
+                    <span data-value="1">★</span>
+                    <span data-value="2">★</span>
+                    <span data-value="3">★</span>
+                    <span data-value="4">★</span>
+                    <span data-value="5">★</span>
+                </div>
+                <hr>
                 @:</li>
             }
             </ol>
         </div>
 
-
+        <div class="stars" id="newStarRating">
+            <span data-value="1">★</span>
+            <span data-value="2">★</span>
+            <span data-value="3">★</span>
+            <span data-value="4">★</span>
+            <span data-value="5">★</span>
+        </div>
         <div>
             <input id="NewMeessage" type="text" name="main" placeholder="New message">
             <button id="addNewMeessage" type="submit">新增留言</button>
@@ -116,23 +151,40 @@
 <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 <script src="https://cdn.bootcdn.net/ajax/libs/dayjs/1.4.1/dayjs.min.js"></script>
 <script>
+
     //產生留言
-    function newlist(e) {
+    //星級評分(新留言)
+    const stars = document.querySelectorAll('#newStarRating span');
+    stars.forEach(star => {
+        star.addEventListener('click', () => {
+            selectedRating = star.getAttribute('data-value');
+            stars.forEach(s => s.classList.remove('selected'));
+            for (let i = 0; i < selectedRating; i++) {
+                stars[i].classList.add('selected');
+            }
+        });
+    });
+    let selectedRating = 0;
+    function newMessageList() {
 
         //取得現在時間
         var getNowTime = dayjs().format("YYYY/MM/DD HH:mm:ss");
         //新增留言後立馬取得留言的ID並新增,使用者可能馬上修改留言,ajax改同步執行(async: false)
         var getMessageID=0;
         const catchNewMessage = $("#NewMeessage").val();
-        if(catchNewMessage != ""){
+
+        if (selectedRating === 0 || catchNewMessage == "") {
+            alert('請選擇星數並填寫留言。');
+            return;
+        }else{
             var errorMessage = false;
             $.ajax({
                 url: "/project/setMessage",
-                data: {replyID: 0,userID: @ID,userName: @name,main: catchNewMessage,date: getNowTime },
+                data: {replyID: 0,userID: @ID,userName: @name,main: catchNewMessage,date: getNowTime,score :selectedRating },
                 type: 'GET',
                 async: false,
                 success: (res) =>{getMessageID=res;},
-                error: err => {errorMessage = true;},
+                error: err => {errorMessage = true;}
             })
             if(errorMessage){
                 alert("發生錯誤，請聯絡管理員。");
@@ -148,13 +200,17 @@
                                     <span class="complain" style="font-size:15px">檢舉</span>
                                     <span class="reply" style="font-size:15px">回覆</span><br>
                                     <sapn>說: </sapn>
-                                    <span class="messageWords">${catchNewMessage}</span>
+                                    <span class="messageWords">${catchNewMessage}</span><br>
+                                    <span>評分：</span><span class="notNewStars">${'★'.repeat(selectedRating)}${'☆'.repeat(5 - selectedRating)}</span>
                                     <input class="modThis" style="display: none" placeholder="輸入想修改的內容...">
                                     <input class="replyThis" style="display: none" placeholder="輸入想回覆的內容...">
                                     <span class="giveup" style="font-size:15px;display: none">放棄編輯</span>
                                 </li>`);
+                //清空輸入框與星星
+                selectedRating = 0;
+                stars.forEach(s => s.classList.remove('selected'));
                 $('#NewMeessage').val('');
-                //新留言的刪除、修改、檢舉
+                //新留言的刪除、修改、檢舉、回覆
                 $("li:last-child .del").click(del);
                 $("li:last-child .mod").click(mod);
                 $("li:last-child .complain").click(complain);
@@ -205,8 +261,20 @@
             });
     }
 
-    
+
     //修改留言
+    //星級評分
+    const modStars = document.querySelectorAll('.modStarRating span');
+    modStars.forEach(star => {
+        star.addEventListener('click', () => {
+            modSelectedRating = star.getAttribute('data-value');
+            modStars.forEach(s => s.classList.remove('selected'));
+            for (let i = 0; i < modSelectedRating; i++) {
+                modStars[i].classList.add('selected');
+            }
+        });
+    });
+    let modSelectedRating = 0;
     //modNum起始設置為(0<)，否則nth-child無法正確選擇
     let modNum=-1;
     function mod() {
@@ -254,28 +322,45 @@
         let num = $(this).parent().index();
         $(`li:nth-child(${num + 1}) .modThis`).show();
         $(`li:nth-child(${num + 1}) .giveup`).show();
+        $(`li:nth-child(${num + 1}) .modStarRating`).show();
         let getThisModText = $(`li:nth-child(${num + 1}) .modThis`).val();
         let i = $(".messageID")[num].textContent;
         //取得現在時間
         var getNowTime = dayjs().format("YYYY/MM/DD HH:mm:ss");
+        
         if (getThisModText != '') {
-            $(`li:nth-child(${num + 1}) .messageWords`).text(getThisModText);
+            if (modSelectedRating === 0) {
+                alert('請選擇星數並填寫留言。');
+                return;}
 
-            $.ajax({
-            url: "/project/modMessage",
-            data: { messageID: i, userID: @ID,main: getThisModText,date: getNowTime },
-            type: 'GET',
-            error: err => alert("發生錯誤，請聯絡管理員。")
-            })
-            $(".modThis")[num].value = "";
-            //時間即時更新
-            $(`li:nth-child(${num + 1}) .datetime`).html(getNowTime);
-            $(`li:nth-child(${num + 1}) .modThis`).hide();
-            $(`li:nth-child(${num + 1}) .giveup`).hide();
+                var errorMessage = false;
+
+                $.ajax({
+                url: "/project/modMessage",
+                data: { messageID: i, userID: @ID,main: getThisModText,date: getNowTime,score :modSelectedRating },
+                type: 'GET',
+                async: false,
+                error: err => {errorMessage = true;}
+                })
+                if(errorMessage){
+                    alert("發生錯誤，請聯絡管理員。");
+                }
+
+                //時間、星數、留言即時更新
+                $(`li:nth-child(${num + 1}) .messageWords`).text(getThisModText);
+                $(`li:nth-child(${num + 1}) .datetime`).html(getNowTime);
+                $(`li:nth-child(${num + 1}) .notNewStars`).html(`${'★'.repeat(modSelectedRating)}${'☆'.repeat(5 - modSelectedRating)}`);
+                modStars.forEach(s => s.classList.remove('selected'));
+                modSelectedRating = 0;
+                $(".modThis")[num].value = "";
+
+                $(`li:nth-child(${num + 1}) .modThis`).hide();
+                $(`li:nth-child(${num + 1}) .giveup`).hide();
+                $(`li:nth-child(${num + 1}) .modStarRating`).hide();
         }
         //當選擇修改另一個留言時，檢查上個修改是否有輸入字，並對使用者做出提示，關閉上個修改留言輸入框
         if(modNum>-1){
-            if($(`li:nth-child(${modNum + 1}) .modThis`).val() != ""){
+            if($(`li:nth-child(${modNum + 1}) .modThis`).val() != "" || modSelectedRating!=0){
                 //彈出視窗以外的部分為透明層，防止其他操作
                 overLay();
                 //彈出提示視窗確認是否放棄上個修改，如果上個修改不為空
@@ -290,6 +375,7 @@
                         $("#checkHint").remove();
                         $(`li:nth-child(${num + 1}) .modThis`).hide();
                         $(`li:nth-child(${num + 1}) .giveup`).hide();
+                        $(`li:nth-child(${num + 1}) .modStarRating`).hide();
                     });
                 $("#userNo").on("click",
                     () => {
@@ -297,20 +383,25 @@
                         $("#checkHint").remove();
                         $(`li:nth-child(${num + 1}) .modThis`).hide();
                         $(`li:nth-child(${num + 1}) .giveup`).hide();
+                        $(`li:nth-child(${num + 1}) .modStarRating`).hide();
                     });
                 $("#userYes").on("click",
                     () => {
                         //清除文字不能用選擇器
                         $(".modThis")[modNum].value = "";
+                        modStars.forEach(s => s.classList.remove('selected'));
                         $(`li:nth-child(${modNum + 1}) .modThis`).hide();
                         $(`li:nth-child(${modNum + 1}) .giveup`).hide();
+                        $(`li:nth-child(${modNum + 1}) .modStarRating`).hide();
                         $("#checkDelcover").remove();
                         $("#checkHint").remove();
                         modNum=num;
+                        modSelectedRating = 0;
                     });
             }else if(modNum!=num){
                 $(`li:nth-child(${modNum + 1}) .modThis`).hide();
                 $(`li:nth-child(${modNum + 1}) .giveup`).hide();
+                $(`li:nth-child(${modNum + 1}) .modStarRating`).hide();
             }
         }
         if($(`li:nth-child(${modNum + 1}) .modThis`).val() == "" || modNum<0)
@@ -573,11 +664,11 @@
 
     $("#NewMeessage").keypress(e => {
         if (e.keyCode == 13) {
-            newlist();
+            newMessageList();
         }
     })
 
-    $("#addNewMeessage").click(newlist);
+    $("#addNewMeessage").click(newMessageList);
 
 </script>
 

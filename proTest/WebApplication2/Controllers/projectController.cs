@@ -125,5 +125,10 @@ namespace WebApplication2.Controllers
                 }
             }
         }
-    }
+
+        public IActionResult errorAccount()
+        {
+            return View();
+        }
+        }
 }

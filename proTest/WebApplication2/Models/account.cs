@@ -20,19 +20,13 @@ namespace WebApplication2.Models
     {
 
         public int messageID { get; set; } = 0;
-
         public int replyID { get; set; } = 0;
-
         public int userID { get; set; }
-
+        public int productID { get; set; }
         public string userName { get; set; } = "0202";
-
-        [Required(ErrorMessage = "訊息不能為空！")]
         public string main { get; set; }
-
         public DateTime date { get; set; } = DateTime.Now;
-
-
+        public double score { get; set; }
     }
 
 
@@ -44,12 +38,6 @@ namespace WebApplication2.Models
         public string userName { get; set; }
         public string password { get; set; }
     }
-    static public class temp
-    {
-        static public int ID { get; set; }
-        static public string userName { get; set; }
-    }
-
     public class replys
     {
         public int replyID { get; set; }
