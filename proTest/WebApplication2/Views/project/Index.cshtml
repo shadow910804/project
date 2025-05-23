@@ -112,39 +112,33 @@
                 <span class="reply" style="font-size:15px">回覆</span><br>
                 @if (a.replyID==0) {
                     <sapn>說: </sapn>
+                    <span class="messageWords">@a.main</span><br>
+                    string star = new string('★',(int)@a.score)+new string('☆',(int)(5-@a.score));
+                    <span>評分：</span><span class="notNewStars">@star</span>
                 }
                 else{
                     <sapn>回覆: </sapn>
+                    <span class="messageWords">@a.main</span><br>
                 }
-                <span class="messageWords">@a.main</span><br>
-                string star = new string('★',(int)@a.score)+new string('☆',(int)(5-@a.score));
-                <span>評分：</span><span class="notNewStars">@star</span>
                 <input class="modThis" style="display: none" placeholder="輸入想修改的內容...">
                 <input class="replyThis" style="display: none" placeholder="輸入想回覆的內容...">
                 <span class="giveup" style="font-size:15px;display: none">放棄編輯</span>
-                <div class="stars modStarRating" style="display: none">
-                    <span data-value="1">★</span>
-                    <span data-value="2">★</span>
-                    <span data-value="3">★</span>
-                    <span data-value="4">★</span>
-                    <span data-value="5">★</span>
-                </div>
-                <hr>
+                <div class="stars modStarRating"></div>
                 @:</li>
             }
             </ol>
         </div>
-
+        <hr>
+        <div>
+            <input id="NewMeessage" type="text" name="main" placeholder="New message">
+            <button id="addNewMeessage" type="submit">新增留言</button>
+        </div>
         <div class="stars" id="newStarRating">
             <span data-value="1">★</span>
             <span data-value="2">★</span>
             <span data-value="3">★</span>
             <span data-value="4">★</span>
             <span data-value="5">★</span>
-        </div>
-        <div>
-            <input id="NewMeessage" type="text" name="main" placeholder="New message">
-            <button id="addNewMeessage" type="submit">新增留言</button>
         </div>
     </cover>
 </body>
@@ -205,6 +199,7 @@
                                     <input class="modThis" style="display: none" placeholder="輸入想修改的內容...">
                                     <input class="replyThis" style="display: none" placeholder="輸入想回覆的內容...">
                                     <span class="giveup" style="font-size:15px;display: none">放棄編輯</span>
+                                    <div class="stars modStarRating"></div>
                                 </li>`);
                 //清空輸入框與星星
                 selectedRating = 0;
@@ -262,19 +257,21 @@
     }
 
 
-    //修改留言
-    //星級評分
-    const modStars = document.querySelectorAll('.modStarRating span');
-    modStars.forEach(star => {
-        star.addEventListener('click', () => {
-            modSelectedRating = star.getAttribute('data-value');
-            modStars.forEach(s => s.classList.remove('selected'));
-            for (let i = 0; i < modSelectedRating; i++) {
-                modStars[i].classList.add('selected');
-            }
-        });
-    });
+    //星級評分(修改留言)
     let modSelectedRating = 0;
+    function modStarSelectedColor(){
+        var modStars = document.querySelectorAll('.modStarRating span');
+        modStars.forEach(star => {
+            star.addEventListener('click', () => {
+                modSelectedRating = star.getAttribute('data-value');
+                modStars.forEach(s => s.classList.remove('selected'));
+                for (let i = 0; i < modSelectedRating; i++) {
+                    modStars[i].classList.add('selected');
+                }
+            });
+        });
+    }
+    //修改留言
     //modNum起始設置為(0<)，否則nth-child無法正確選擇
     let modNum=-1;
     function mod() {
@@ -316,13 +313,13 @@
         }else if(replyNum>-1){
                 $(`li:nth-child(${replyNum + 1}) .replyThis`).hide();
                 $(`li:nth-child(${replyNum + 1}) .giveup`).hide();
+                replyNum=-1;
         }
 
         //修改留言正文
         let num = $(this).parent().index();
         $(`li:nth-child(${num + 1}) .modThis`).show();
         $(`li:nth-child(${num + 1}) .giveup`).show();
-        $(`li:nth-child(${num + 1}) .modStarRating`).show();
         let getThisModText = $(`li:nth-child(${num + 1}) .modThis`).val();
         let i = $(".messageID")[num].textContent;
         //取得現在時間
@@ -333,30 +330,31 @@
                 alert('請選擇星數並填寫留言。');
                 return;}
 
-                var errorMessage = false;
+            var errorMessage = false;
 
-                $.ajax({
-                url: "/project/modMessage",
-                data: { messageID: i, userID: @ID,main: getThisModText,date: getNowTime,score :modSelectedRating },
-                type: 'GET',
-                async: false,
-                error: err => {errorMessage = true;}
-                })
-                if(errorMessage){
-                    alert("發生錯誤，請聯絡管理員。");
-                }
+            $.ajax({
+            url: "/project/modMessage",
+            data: { messageID: i, userID: @ID,main: getThisModText,date: getNowTime,score :modSelectedRating },
+            type: 'GET',
+            async: false,
+            error: err => {errorMessage = true;}
+            })
+            if(errorMessage){
+                alert("發生錯誤，請聯絡管理員。");
+            }
 
-                //時間、星數、留言即時更新
-                $(`li:nth-child(${num + 1}) .messageWords`).text(getThisModText);
-                $(`li:nth-child(${num + 1}) .datetime`).html(getNowTime);
-                $(`li:nth-child(${num + 1}) .notNewStars`).html(`${'★'.repeat(modSelectedRating)}${'☆'.repeat(5 - modSelectedRating)}`);
-                modStars.forEach(s => s.classList.remove('selected'));
-                modSelectedRating = 0;
-                $(".modThis")[num].value = "";
+            //時間、星數、留言即時更新
+            $(`li:nth-child(${num + 1}) .messageWords`).text(getThisModText);
+            $(`li:nth-child(${num + 1}) .datetime`).html(getNowTime);
+            $(`li:nth-child(${num + 1}) .notNewStars`).html(`${'★'.repeat(modSelectedRating)}${'☆'.repeat(5 - modSelectedRating)}`);
+            modSelectedRating = 0;
+            modNum=-1;
+            $(".modThis")[num].value = "";
 
-                $(`li:nth-child(${num + 1}) .modThis`).hide();
-                $(`li:nth-child(${num + 1}) .giveup`).hide();
-                $(`li:nth-child(${num + 1}) .modStarRating`).hide();
+            $(`li:nth-child(${num + 1}) .modThis`).hide();
+            $(`li:nth-child(${num + 1}) .giveup`).hide();
+            $(`ol>li:nth-child(${num + 1}) .modStarRating`).html('');
+            return;
         }
         //當選擇修改另一個留言時，檢查上個修改是否有輸入字，並對使用者做出提示，關閉上個修改留言輸入框
         if(modNum>-1){
@@ -375,7 +373,7 @@
                         $("#checkHint").remove();
                         $(`li:nth-child(${num + 1}) .modThis`).hide();
                         $(`li:nth-child(${num + 1}) .giveup`).hide();
-                        $(`li:nth-child(${num + 1}) .modStarRating`).hide();
+                        $(`ol>li:nth-child(${num + 1}) .modStarRating`).html('');
                     });
                 $("#userNo").on("click",
                     () => {
@@ -383,29 +381,42 @@
                         $("#checkHint").remove();
                         $(`li:nth-child(${num + 1}) .modThis`).hide();
                         $(`li:nth-child(${num + 1}) .giveup`).hide();
-                        $(`li:nth-child(${num + 1}) .modStarRating`).hide();
+                        $(`ol>li:nth-child(${num + 1}) .modStarRating`).html('');
                     });
                 $("#userYes").on("click",
                     () => {
                         //清除文字不能用選擇器
                         $(".modThis")[modNum].value = "";
-                        modStars.forEach(s => s.classList.remove('selected'));
                         $(`li:nth-child(${modNum + 1}) .modThis`).hide();
                         $(`li:nth-child(${modNum + 1}) .giveup`).hide();
-                        $(`li:nth-child(${modNum + 1}) .modStarRating`).hide();
                         $("#checkDelcover").remove();
                         $("#checkHint").remove();
-                        modNum=num;
+                        $(`ol>li:nth-child(${modNum + 1}) .modStarRating`).html('');
                         modSelectedRating = 0;
+                        modNum=num;
+                        modStarSelectedColor();
                     });
             }else if(modNum!=num){
                 $(`li:nth-child(${modNum + 1}) .modThis`).hide();
                 $(`li:nth-child(${modNum + 1}) .giveup`).hide();
-                $(`li:nth-child(${modNum + 1}) .modStarRating`).hide();
+                $(`ol>li:nth-child(${modNum + 1}) .modStarRating`).html('');
             }
         }
-        if($(`li:nth-child(${modNum + 1}) .modThis`).val() == "" || modNum<0)
+        if(modNum!=num){
+            $(`ol>li:nth-child(${num + 1}) .modStarRating`).append(`
+                <span data-value="1">★</span>
+                <span data-value="2">★</span>
+                <span data-value="3">★</span>
+                <span data-value="4">★</span>
+                <span data-value="5">★</span>`)
+        }
+        if($(`li:nth-child(${modNum + 1}) .modThis`).val() == "" && modSelectedRating==0){
             modNum=num;
+        }
+        if(modNum==-1){
+            modNum=num;
+        }
+        modStarSelectedColor();
     }
 
 
@@ -536,11 +547,16 @@
                     $(`li:nth-child(${modNum + 1}) .giveup`).hide();
                     $("#checkDelcover").remove();
                     $("#checkHint").remove();
+                    $(`ol>li:nth-child(${modNum + 1}) .modStarRating`).html('');
+                    modSelectedRating = 0;
                     modNum=-1;
+                    modStarSelectedColor();
                 });
         }else if(modNum>-1){
                 $(`li:nth-child(${modNum + 1}) .modThis`).hide();
                 $(`li:nth-child(${modNum + 1}) .giveup`).hide();
+                $(`ol>li:nth-child(${modNum + 1}) .modStarRating`).html('');
+                modNum=-1;
         }
 
         //回覆留言正文
