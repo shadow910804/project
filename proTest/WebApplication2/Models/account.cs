@@ -26,7 +26,7 @@ namespace WebApplication2.Models
         public string userName { get; set; } = "0202";
         public string main { get; set; }
         public DateTime date { get; set; } = DateTime.Now;
-        public double score { get; set; }
+        public int score { get; set; }
     }
 
 

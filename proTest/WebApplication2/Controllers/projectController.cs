@@ -16,8 +16,8 @@ namespace WebApplication2.Controllers
         {
             DBmanager db = new DBmanager();
             List<messages> m = new List<messages>(db.getMessages());
-
-            List<messages> mTemp = new List<messages>(m);
+            m.Sort((m1, m2) => { return m1.messageID.CompareTo(m2.messageID); });
+            List <messages> mTemp = new List<messages>(m);
             m.Clear();
             foreach (messages mergeReplyNotZero in mTemp)
             {
@@ -26,12 +26,12 @@ namespace WebApplication2.Controllers
                     if (mergeReplyNotZero.messageID == replyNotZero.replyID)
                     {
                         if (!m.Exists(x => x == replyNotZero))
-                            m.Insert(m.IndexOf(mergeReplyNotZero) + 1, replyNotZero);
+                            m.Insert(m.IndexOf(mergeReplyNotZero)+1, replyNotZero);
                     }
                     else if (mergeReplyNotZero.replyID == replyNotZero.messageID)
                     {
                         if (!m.Exists(x => x == mergeReplyNotZero))
-                            m.Insert(m.IndexOf(replyNotZero) + 1, replyNotZero);
+                            m.Insert(m.IndexOf(replyNotZero)+1, mergeReplyNotZero);
                     }
                     else if(!m.Exists(x => x == mergeReplyNotZero) && !m.Exists(x => x == replyNotZero))
                         m.Add(mergeReplyNotZero);
@@ -39,10 +39,10 @@ namespace WebApplication2.Controllers
             }
             m.Sort((m1, m2) =>
             {
+                TimeSpan sp = m1.date - m2.date;
                 if (m1.messageID == m2.replyID || m1.replyID == m2.messageID)
                     return 0;
-                TimeSpan sp = m1.date - m2.date;
-                if (sp.TotalSeconds > 0)
+                else if (sp.TotalSeconds > 0)
                     return -1;
                 else if (sp.TotalSeconds < 0)
                     return 1;

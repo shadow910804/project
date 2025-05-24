@@ -242,17 +242,18 @@
         $("#userYes").on("click",
             () => {
                 //可能會移除到切版，增加class辨別刪除對象
-                $(`li.messageBase:nth-child(${num + 1})`).remove();
                 $("#checkDelcover").remove();
                 $("#checkHint").remove();
 
                 let i = $(".messageID")[num].textContent;
+                console.log(i);
                 $.ajax({
                     url: "/project/delMessage",
                     data: { messageID: i,userID: @ID },
                     type: 'GET',
                     error: err => alert("發生錯誤，請聯絡管理員。"),
                 })
+                $(`li.messageBase:nth-child(${num + 1})`).remove();
             });
     }
 

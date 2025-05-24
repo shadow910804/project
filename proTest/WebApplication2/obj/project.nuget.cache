@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "YJ7JgC9iZVO/mmM4ywgIXZgcS7f/0kAnlwo9Ri74TRUjqW7k1S6wA4OIL1MY7OiCMARxt67Bawb0ZnnYSZf0ag==",
+  "dgSpecHash": "ShJejTmHwYDYcVss9MvgIWdurvkeii6hrTh/v+KddYMU5P0//bAuswEBvkrB+S0W0V1wroqxeuNz26qc/GYf9Q==",
   "success": true,
-  "projectFilePath": "C:\\Users\\USER\\Desktop\\projectUpdate\\proTest\\WebApplication2\\WebApplication2.csproj",
+  "projectFilePath": "C:\\Users\\USER\\Desktop\\proUpdate\\proTest\\WebApplication2\\WebApplication2.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\USER\\.nuget\\packages\\bouncycastle.cryptography\\2.5.1\\bouncycastle.cryptography.2.5.1.nupkg.sha512",
     "C:\\Users\\USER\\.nuget\\packages\\mailkit\\4.12.0\\mailkit.4.12.0.nupkg.sha512",

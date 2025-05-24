@@ -37,7 +37,7 @@ namespace WebApplication2.Models
                         userName = reader.GetString(reader.GetOrdinal("userName")),
                         main = reader.GetString(reader.GetOrdinal("main")),
                         date = reader.GetDateTime(reader.GetOrdinal("date")),
-                        score = reader.GetDouble(reader.GetOrdinal("score"))
+                        score = reader.GetInt32(reader.GetOrdinal("score"))
                     };
                     m.Add(account);
                 }
