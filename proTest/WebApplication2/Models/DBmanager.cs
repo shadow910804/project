@@ -34,6 +34,7 @@ namespace WebApplication2.Models
                         messageID = reader.GetInt32(reader.GetOrdinal("messageID")),
                         replyID = reader.GetInt32(reader.GetOrdinal("replyID")),
                         productID = reader.GetInt32(reader.GetOrdinal("productID")),
+                        userID = reader.GetInt32(reader.GetOrdinal("userID")),
                         userName = reader.GetString(reader.GetOrdinal("userName")),
                         main = reader.GetString(reader.GetOrdinal("main")),
                         date = reader.GetDateTime(reader.GetOrdinal("date")),
@@ -84,21 +85,27 @@ namespace WebApplication2.Models
             sqlCommand.Connection = sqlConnection;
             sqlConnection.Open();
 
-            SqlDataReader reader = sqlCommand.ExecuteReader();
-            if (reader.HasRows)
-            {
-                while (reader.Read())
+            try{
+                SqlDataReader reader = sqlCommand.ExecuteReader();
+                if (reader.HasRows)
                 {
-                    int messageID = reader.GetInt32(reader.GetOrdinal("messageID"));
-                    sqlConnection.Close();
-                    return messageID;
+                    while (reader.Read())
+                    {
+                        int messageID = reader.GetInt32(reader.GetOrdinal("messageID"));
+                        sqlConnection.Close();
+                        return messageID;
+                    }
+                }
+                else
+                {
+                    throw new Exception();
                 }
             }
-            else
+            catch
             {
-                Console.WriteLine("資料庫為空！");
+                sqlConnection.Close();
+                return 0;
             }
-            sqlConnection.Close();
             throw new Exception();
         }
         //取得剛新增留言的ID↑
@@ -128,56 +135,22 @@ namespace WebApplication2.Models
         public void deleteMessage(messages m)
         {
             SqlConnection sqlconnection = new SqlConnection(connStr);
-            SqlCommand sqlcommand = new SqlCommand(@"DELETE FROM message　WHERE userID = @i AND messageID = @m");
+            SqlCommand sqlcommand = new SqlCommand(@"DELETE FROM message　WHERE messageID = @m");
             sqlcommand.Connection = sqlconnection;
+            try{
+                sqlcommand.Parameters.Add(new SqlParameter("@m", m.messageID));
 
-            sqlcommand.Parameters.Add(new SqlParameter("@m", m.messageID));
-            sqlcommand.Parameters.Add(new SqlParameter("@i", m.userID));
-
-            sqlconnection.Open();
-            sqlcommand.ExecuteNonQuery();
-            sqlconnection.Close();
+                sqlconnection.Open();
+                sqlcommand.ExecuteNonQuery();
+                sqlconnection.Close();
+            }
+            catch{
+                sqlconnection.Close();
+            }
         }
         //刪除留言↑
 
 
-
-
-
-        //取得回覆↓(舊版
-        public List<replys> getreplys()
-        {
-            List<replys> r = new List<replys>();
-
-            SqlConnection sqlConnection = new SqlConnection(connStr);
-            SqlCommand sqlCommand = new SqlCommand("SELECT * FROM reply");
-            sqlCommand.Connection = sqlConnection;
-            sqlConnection.Open();
-
-            SqlDataReader reader = sqlCommand.ExecuteReader();
-            if (reader.HasRows)
-            {
-                while (reader.Read())
-                {
-                    replys account = new replys
-                    {
-                        replyID = reader.GetInt32(reader.GetOrdinal("messageID")),
-                        messageID = reader.GetInt32(reader.GetOrdinal("messageID")),
-                        userName = reader.GetString(reader.GetOrdinal("userName")),
-                        main = reader.GetString(reader.GetOrdinal("main")),
-                        date = reader.GetDateTime(reader.GetOrdinal("date"))
-                    };
-                    r.Add(account);
-                }
-            }
-            else
-            {
-                Console.WriteLine("資料庫為空！");
-            }
-            sqlConnection.Close();
-            return r;
-        }
-        //取得回覆↑(舊版
 
 
         public account login(account u)
@@ -197,7 +170,8 @@ namespace WebApplication2.Models
                     account account = new account
                     {
                         ID = reader.GetInt32(reader.GetOrdinal("id")),
-                        userName = reader.GetString(reader.GetOrdinal("userName"))
+                        userName = reader.GetString(reader.GetOrdinal("userName")),
+                        buyOrSell = reader.GetString(reader.GetOrdinal("buyOrSell"))
                     };
                     sqlConnection.Close();
                     return account;
@@ -209,20 +183,6 @@ namespace WebApplication2.Models
             }
             sqlConnection.Close();
             throw new Exception();
-        }
-
-        public void newAccount(account user)
-        {
-            SqlConnection sqlconnection = new SqlConnection(connStr);
-            SqlCommand sqlcommand = new SqlCommand(@"INSERT INTO users(userName,password) VALUES(@username,@password)");
-            sqlcommand.Connection = sqlconnection;
-
-            sqlcommand.Parameters.Add(new SqlParameter("@username", user.userName));
-            sqlcommand.Parameters.Add(new SqlParameter("@password", user.password));
-
-            sqlconnection.Open();
-            sqlcommand.ExecuteNonQuery();
-            sqlconnection.Close();
         }
     }
 }

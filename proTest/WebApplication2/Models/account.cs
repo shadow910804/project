@@ -37,13 +37,6 @@ namespace WebApplication2.Models
         public int ID { get; set; }
         public string userName { get; set; }
         public string password { get; set; }
-    }
-    public class replys
-    {
-        public int replyID { get; set; }
-        public int messageID { get; set; }
-        public string userName { get; set; }
-        public string main { get; set; }
-        public DateTime date { get; set; }
+        public string buyOrSell { get; set; }
     }
 }

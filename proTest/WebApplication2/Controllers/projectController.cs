@@ -16,7 +16,7 @@ namespace WebApplication2.Controllers
         {
             DBmanager db = new DBmanager();
             List<messages> m = new List<messages>(db.getMessages());
-            m.Sort((m1, m2) => { return m1.messageID.CompareTo(m2.messageID); });
+            m.Sort((m1, m2) => { return m1.messageID.CompareTo(m2.messageID);});
             List <messages> mTemp = new List<messages>(m);
             m.Clear();
             foreach (messages mergeReplyNotZero in mTemp)
@@ -54,6 +54,7 @@ namespace WebApplication2.Controllers
             ViewBag.ID = a.ID;
             ViewBag.name = a.userName;
             ViewBag.messages = m;
+            ViewBag.identity = a.buyOrSell;
             return View();
         }
 
@@ -116,7 +117,7 @@ namespace WebApplication2.Controllers
                 {
                     dbmanager.login(u);
                     account accounts = dbmanager.login(u);
-                    return RedirectToAction("Index", "project", new account { ID = accounts.ID, userName = accounts.userName });
+                    return RedirectToAction("Index", "project", new account { ID = accounts.ID, userName = accounts.userName,buyOrSell=accounts.buyOrSell });
                 }
                 catch
                 {

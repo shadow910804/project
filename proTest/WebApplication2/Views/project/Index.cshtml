@@ -4,7 +4,10 @@
 @{
     List<messages> messageBoard = ViewBag.messages;
     string name = ViewBag.name;
-    int ID = ViewBag.ID;
+    name = name?? "";
+    string identity = ViewBag.identity;
+    identity = identity?? "";
+    int? ID = ViewBag.ID;
 }
 <!DOCTYPE html>
 <html>
@@ -13,7 +16,7 @@
 
     <meta charset="UTF-8">
 
-    <title></title>
+    <title>xxx商品</title>
 
 </head>
 <style>
@@ -103,6 +106,8 @@
                 @:<li class="messageBase">
                 <span class="messageID" style="display: none" name="messageID">@a.messageID</span>
                 //訊息編號
+                <span class="replyID" style="display: none" name="replyID">@a.replyID</span>
+                <span class="userID" style="display: none" name="userID">@a.userID</span>
                 <span style="font-size:15px" name="userName">用戶: @a.userName</span>//用戶名
                 <span class="datetime" style="font-size:10px">@a.date.ToString("yyyy/MM/dd HH:mm:ss")</span>
                 //留言時間
@@ -145,6 +150,29 @@
 <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 <script src="https://cdn.bootcdn.net/ajax/libs/dayjs/1.4.1/dayjs.min.js"></script>
 <script>
+    let userID=@ID;
+    let identity;
+    try{
+        if(@identity==seller || @identity==consumer)
+            identity=@identity;
+    }catch(e){
+        identity=JSON.stringify(@identity);
+    }
+    let userName;
+    try{
+        if(typeof(@name)==string)
+            userName=@name;
+    }
+    catch(e){
+        userName=JSON.stringify(@name);
+    }
+    console.log(identity);
+    console.log(typeof(identity));
+
+
+
+
+
 
     //產生留言
     //星級評分(新留言)
@@ -174,7 +202,7 @@
             var errorMessage = false;
             $.ajax({
                 url: "/project/setMessage",
-                data: {replyID: 0,userID: @ID,userName: @name,main: catchNewMessage,date: getNowTime,score :selectedRating },
+                data: {replyID: 0,userID: userID,userName: userName,main: catchNewMessage,date: getNowTime,score :selectedRating },
                 type: 'GET',
                 async: false,
                 success: (res) =>{getMessageID=res;},
@@ -187,7 +215,7 @@
                 $(".show ol").append(`
                                 <li class="messageBase">
                                     <span class="messageID" style="display: none" name="messageID">${getMessageID}</span>
-                                    <span style="font-size:15px" name="userName">用戶: ${@name}</span>
+                                    <span style="font-size:15px" name="userName">用戶: ${userName}</span>
                                     <span class="datetime" style="font-size:10px">${getNowTime}</span>
                                     <span class="del" style="font-size:15px;color:red">刪除</span>
                                     <span class="mod" style="font-size:15px">修改</span>
@@ -246,14 +274,25 @@
                 $("#checkHint").remove();
 
                 let i = $(".messageID")[num].textContent;
-                console.log(i);
+                let reID = $(".replyID")[num+1].textContent;
                 $.ajax({
                     url: "/project/delMessage",
-                    data: { messageID: i,userID: @ID },
+                    data: { messageID: i},
                     type: 'GET',
                     error: err => alert("發生錯誤，請聯絡管理員。"),
                 })
                 $(`li.messageBase:nth-child(${num + 1})`).remove();
+
+                if(reID == i && reID!=0){
+                    i = $(".messageID")[num].textContent;
+                    $.ajax({
+                    url: "/project/delMessage",
+                    data: { messageID: i},
+                    type: 'GET',
+                    error: err => alert("發生錯誤，請聯絡管理員。"),
+                })
+                    $(`li.messageBase:nth-child(${num + 1})`).remove();
+                }
             });
     }
 
@@ -335,7 +374,7 @@
 
             $.ajax({
             url: "/project/modMessage",
-            data: { messageID: i, userID: @ID,main: getThisModText,date: getNowTime,score :modSelectedRating },
+            data: { messageID: i, userID: userID,main: getThisModText,date: getNowTime,score :modSelectedRating },
             type: 'GET',
             async: false,
             error: err => {errorMessage = true;}
@@ -506,7 +545,6 @@
                 error: err => alert("發生錯誤，請聯絡管理員。")
             })
         }
-
         $("#usersend").click(sendData);
     }
 
@@ -573,7 +611,7 @@
             var errorMessage = false;
             $.ajax({
             url: "/project/setMessage",
-            data: {replyID: i,userID: @ID,userName: @name,main: getThisReplyText,date: getNowTime },
+            data: {replyID: i,userID: userID,userName: userName,main: getThisReplyText,date: getNowTime },
             type: 'GET',
             async: false,
             success: (res) =>{getMessageID=res;},
@@ -587,7 +625,8 @@
                 newReplyMessage.insertAdjacentHTML("afterend",`
                             <li class="messageBase">
                                 <span class="messageID" style="display: none" name="messageID">${getMessageID}</span>
-                                <span style="font-size:15px" name="userName">用戶: ${@name}</span>
+                                <span class="replyID" style="display: none" name="replyID">${i}</span>
+                                <span style="font-size:15px" name="userName">用戶: ${userName}</span>
                                 <span class="datetime" style="font-size:10px">${getNowTime}</span>
                                 <span class="del" style="font-size:15px;color:red">刪除</span>
                                 <span class="mod" style="font-size:15px">修改</span>
@@ -657,6 +696,50 @@
     }
 
 
+
+    //權限控制
+    const allMessageUserID = document.querySelectorAll('li>.userID');
+    var count = 0;
+    allMessageUserID.forEach(x=>{
+        count++;
+        let userIDToNum = Number(x.textContent);
+        if(userID != userIDToNum){
+            $(`li:nth-child(${count}) .del`).hide();
+            $(`li:nth-child(${count}) .mod`).hide();
+        }else if(userID == userIDToNum){
+            $(`li:nth-child(${count}) .complain`).hide();
+        }
+    });
+    if(userID<1){
+        complain=newMessageList=function(){
+            //彈出視窗以外的部分為透明層，防止其他操作
+            overLay();
+            //彈出提示視窗確認是否刪除留言
+            theHint();
+            var popUpWindow = "<form action='/project/singin' method='get'><span class='pop'>請先登入</span><button class='left' id='userNo'>否</button><button class='right' type='submit'>是</button></from>";
+            $("#checkHint").html(popUpWindow);
+
+            //點透明層視同取消，移除彈出畫面、透明層
+            $("#checkDelcover").on("click",
+                () => {
+                    $("#checkDelcover").remove();
+                    $("#checkHint").remove();
+                });
+            $("#userNo").on("click",
+                (e) => {
+                    e.preventDefault();
+                    $("#checkDelcover").remove();
+                    $("#checkHint").remove();
+                });
+        }
+    }
+    if(identity!="seller"){
+        $(".reply").hide();
+    }
+
+
+
+
     //透明層
     function overLay(){
         var overlay = document.createElement('div');
@@ -677,7 +760,6 @@
     $(".complain").click(complain);
     $(".reply").click(replyMessage);
     $(".giveup").click(giveUp);
-
 
     $("#NewMeessage").keypress(e => {
         if (e.keyCode == 13) {
