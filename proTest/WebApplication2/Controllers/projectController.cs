@@ -19,10 +19,17 @@ namespace WebApplication2.Controllers
             m.Sort((m1, m2) => { return m1.messageID.CompareTo(m2.messageID);});
             List <messages> mTemp = new List<messages>(m);
             m.Clear();
+
+            //瀏覽中的商品ID，用於篩選該商品的留言用
+            //int productID =;
+
             foreach (messages mergeReplyNotZero in mTemp)
             {
                 foreach (messages replyNotZero in mTemp)
                 {
+                    //if (productID == replyNotZero.productID){
+                    //    continue;
+                    //}
                     if (mergeReplyNotZero.messageID == replyNotZero.replyID)
                     {
                         if (!m.Exists(x => x == replyNotZero))
@@ -53,8 +60,10 @@ namespace WebApplication2.Controllers
 
             ViewBag.ID = a.ID;
             ViewBag.name = a.userName;
-            ViewBag.messages = m;
             ViewBag.identity = a.buyOrSell;
+
+
+            ViewBag.messages = m;
             return View();
         }
 

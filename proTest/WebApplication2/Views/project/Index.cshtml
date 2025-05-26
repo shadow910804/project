@@ -4,9 +4,6 @@
 @{
     List<messages> messageBoard = ViewBag.messages;
     string name = ViewBag.name;
-    name = name?? "";
-    string identity = ViewBag.identity;
-    identity = identity?? "";
     int? ID = ViewBag.ID;
 }
 <!DOCTYPE html>
@@ -38,21 +35,21 @@
         color: gold;
     }
 
-    .pop {
+    .popUpHint {
         position: absolute;
         top: 40%;
         left: 50%;
         transform: translate(-50%, -40%);
     }
 
-    .left {
+    .leftIsNo {
         position: absolute;
         top: 70%;
         left: 35%;
         transform: translate(-35%, -70%);
     }
 
-    .right {
+    .rightIsYes {
         position: absolute;
         top: 70%;
         left: 65%;
@@ -80,7 +77,7 @@
         z-index: 9999;
     }
 
-    #complain {
+    #thisMessageComplain {
         margin: 0 auto;
         position: absolute;
         top: 45%;
@@ -91,15 +88,15 @@
         background-color: white;
         z-index: 9999;
     }
-    .detail{
+    .complainDetail{
         width: 300px;
         height: 400px;
     }
 </style>
 
 <body>
-    <cover id="cover">
-        <div class="show">
+    <div id="cover">
+        <div class="showMessage">
             <ol>
             @foreach (messages a in messageBoard)
             {
@@ -111,10 +108,10 @@
                 <span style="font-size:15px" name="userName">用戶: @a.userName</span>//用戶名
                 <span class="datetime" style="font-size:10px">@a.date.ToString("yyyy/MM/dd HH:mm:ss")</span>
                 //留言時間
-                <span class="del" style="font-size:15px;color:red">刪除</span>
-                <span class="mod" style="font-size:15px">修改</span>
-                <span class="complain" style="font-size:15px">檢舉</span>
-                <span class="reply" style="font-size:15px">回覆</span><br>
+                <span class="messageDel" style="font-size:15px;color:red">刪除</span>
+                <span class="messageMod" style="font-size:15px">修改</span>
+                <span class="messageComplain" style="font-size:15px">檢舉</span>
+                <span class="messageReply" style="font-size:15px">回覆</span><br>
                 @if (a.replyID==0) {
                     <sapn>說: </sapn>
                     <span class="messageWords">@a.main</span><br>
@@ -145,33 +142,12 @@
             <span data-value="4">★</span>
             <span data-value="5">★</span>
         </div>
-    </cover>
+    </div>
 </body>
 <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 <script src="https://cdn.bootcdn.net/ajax/libs/dayjs/1.4.1/dayjs.min.js"></script>
 <script>
-    let userID=@ID;
-    let identity;
-    try{
-        if(@identity==seller || @identity==consumer)
-            identity=@identity;
-    }catch(e){
-        identity=JSON.stringify(@identity);
-    }
-    let userName;
-    try{
-        if(typeof(@name)==string)
-            userName=@name;
-    }
-    catch(e){
-        userName=JSON.stringify(@name);
-    }
-    console.log(identity);
-    console.log(typeof(identity));
-
-
-
-
+    var identity = '@ViewBag.identity';
 
 
     //產生留言
@@ -202,7 +178,7 @@
             var errorMessage = false;
             $.ajax({
                 url: "/project/setMessage",
-                data: {replyID: 0,userID: userID,userName: userName,main: catchNewMessage,date: getNowTime,score :selectedRating },
+                data: {replyID: 0,userID: @ID,userName: @name,main: catchNewMessage,date: getNowTime,score :selectedRating },
                 type: 'GET',
                 async: false,
                 success: (res) =>{getMessageID=res;},
@@ -212,15 +188,15 @@
                 alert("發生錯誤，請聯絡管理員。");
             }
             else{
-                $(".show ol").append(`
+                $(".showMessage ol").append(`
                                 <li class="messageBase">
                                     <span class="messageID" style="display: none" name="messageID">${getMessageID}</span>
-                                    <span style="font-size:15px" name="userName">用戶: ${userName}</span>
+                                    <span style="font-size:15px" name="userName">用戶: ${@name}</span>
                                     <span class="datetime" style="font-size:10px">${getNowTime}</span>
-                                    <span class="del" style="font-size:15px;color:red">刪除</span>
-                                    <span class="mod" style="font-size:15px">修改</span>
-                                    <span class="complain" style="font-size:15px">檢舉</span>
-                                    <span class="reply" style="font-size:15px">回覆</span><br>
+                                    <span class="messageDel" style="font-size:15px;color:red">刪除</span>
+                                    <span class="messageMod" style="font-size:15px">修改</span>
+                                    <span class="messageComplain" style="font-size:15px">檢舉</span>
+                                    <span class="messageReply" style="font-size:15px">回覆</span><br>
                                     <sapn>說: </sapn>
                                     <span class="messageWords">${catchNewMessage}</span><br>
                                     <span>評分：</span><span class="notNewStars">${'★'.repeat(selectedRating)}${'☆'.repeat(5 - selectedRating)}</span>
@@ -234,10 +210,10 @@
                 stars.forEach(s => s.classList.remove('selected'));
                 $('#NewMeessage').val('');
                 //新留言的刪除、修改、檢舉、回覆
-                $("li:last-child .del").click(del);
-                $("li:last-child .mod").click(mod);
-                $("li:last-child .complain").click(complain);
-                $("li:last-child .reply").click(replyMessage);
+                $("li:last-child .messageDel").click(messageDel);
+                $("li:last-child .messageMod").click(messageMod);
+                $("li:last-child .messageComplain").click(messageComplain);
+                $("li:last-child .messageReply").click(messageReply);
                 $("li:last-child .giveup").click(giveUp);
             }
         }
@@ -245,7 +221,7 @@
 
 
     //刪除留言
-    function del() {
+    function messageDel() {
         let num = $(this).parent().index();
 
         //彈出視窗以外的部分為透明層，防止其他操作
@@ -253,7 +229,7 @@
 
         //彈出提示視窗確認是否刪除留言
         theHint();
-        var popUpWindow = "<span class='pop'>是否刪除留言?</br>提醒您，刪除後無法復原。</span><button class='left' id='userNo'>否</button><button class='right' id='userYes'>是</button>";
+        var popUpWindow = "<span class='popUpHint'>是否刪除留言?</br>提醒您，刪除後無法復原。</span><button class='leftIsNo' id='userNo'>否</button><button class='rightIsYes' id='userYes'>是</button>";
         $("#checkHint").html(popUpWindow);
 
         //點透明層視同取消，移除彈出畫面、透明層
@@ -314,7 +290,7 @@
     //修改留言
     //modNum起始設置為(0<)，否則nth-child無法正確選擇
     let modNum=-1;
-    function mod() {
+    function messageMod() {
         //檢查上回覆是否有輸入值
         if($(`li:nth-child(${replyNum + 1 }) .replyThis`).val() != "" && replyNum!=-1){
             //彈出視窗以外的部分為透明層，防止其他操作
@@ -322,7 +298,7 @@
 
             //彈出提示視窗確認是否放棄上個回覆，如果上個回覆不為空
             theHint();
-            var popUpWindow = "<span class='pop'>放棄上個回覆嗎?</br>按'是'後無法復原喔。</span><button class='left' id='userNo'>否</button><button class='right' id='userYes'>是</button>";
+            var popUpWindow = "<span class='popUpHint'>放棄上個回覆嗎?</br>按'是'後無法復原喔。</span><button class='leftIsNo' id='userNo'>否</button><button class='rightIsYes' id='userYes'>是</button>";
             $("#checkHint").html(popUpWindow);
 
             //點透明層視同取消，移除彈出畫面、透明層
@@ -374,7 +350,7 @@
 
             $.ajax({
             url: "/project/modMessage",
-            data: { messageID: i, userID: userID,main: getThisModText,date: getNowTime,score :modSelectedRating },
+            data: { messageID: i, userID: @ID,main: getThisModText,date: getNowTime,score :modSelectedRating },
             type: 'GET',
             async: false,
             error: err => {errorMessage = true;}
@@ -403,7 +379,7 @@
                 overLay();
                 //彈出提示視窗確認是否放棄上個修改，如果上個修改不為空
                 theHint();
-                var popUpWindow = "<span class='pop'>上個修改尚未完成。</br>按'是'將刪除上個修改，無法復原。</span><button class='left' id='userNo'>否</button><button class='right' id='userYes'>是</button>";
+                var popUpWindow = "<span class='popUpHint'>上個修改尚未完成。</br>按'是'將刪除上個修改，無法復原。</span><button class='leftIsNo' id='userNo'>否</button><button class='rightIsYes' id='userYes'>是</button>";
                 $("#checkHint").html(popUpWindow);
 
                 //點透明層視同取消，移除彈出畫面、透明層
@@ -468,7 +444,7 @@
         overLay();
         //彈出提示視窗確認是否放棄這則編輯，如果上個這則編輯不為空
         theHint();
-        var popUpWindow = "<span class='pop'>是否放棄修改?</br>提醒您，按'是'後無法復原。</span><button class='left' id='userNo'>否</button><button class='right' id='userYes'>是</button>";
+        var popUpWindow = "<span class='popUpHint'>是否放棄修改?</br>提醒您，按'是'後無法復原。</span><button class='leftIsNo' id='userNo'>否</button><button class='rightIsYes' id='userYes'>是</button>";
         $("#checkHint").html(popUpWindow);
 
         //點透明層視同取消，移除彈出畫面、透明層
@@ -503,7 +479,7 @@
 
 
     //檢舉留言
-    function complain() {
+    function messageComplain() {
         //檢舉內容
         let num = $(this).parent().index();
         //獲取文字不能用選擇器，會顯示未定義;
@@ -514,16 +490,16 @@
 
         //彈出視窗確認是否檢舉留言
         var hint = document.createElement('div');
-        hint.setAttribute('id', 'complain');
+        hint.setAttribute('id', 'thisMessageComplain');
         document.body.appendChild(hint);
-        var popUpWindow = `<form action='complainSend' method='post'><p style='display:none' name='content'>${str}</p><input class='harassment' name='harassment' type="checkbox" v-model='com'>騷擾<br><input class='pornography' name='pornography' type="checkbox" v-model='com'>色情內容<br><input class='threaten' name='threaten' type="checkbox" v-model='com'>威脅內容<br><input class='Hatred' name='Hatred' type="checkbox" v-model='com'>仇恨或歧視內容<br><textarea class='detail' placeholder='請輸入內容' name='detail'></textarea><button type='submit' id ='usersend'>寄出</button></form>`;
-        $("#complain").html(popUpWindow);
+        var popUpWindow = `<form action='complainSend' method='post'><p style='display:none' name='content'>${str}</p><input class='harassment' name='harassment' type="checkbox" v-model='com'>騷擾<br><input class='pornography' name='pornography' type="checkbox" v-model='com'>色情內容<br><input class='threaten' name='threaten' type="checkbox" v-model='com'>威脅內容<br><input class='Hatred' name='Hatred' type="checkbox" v-model='com'>仇恨或歧視內容<br><textarea class='complainDetail' placeholder='請輸入內容' name='detail'></textarea><button type='submit' id ='usersend'>寄出</button></form>`;
+        $("#thisMessageComplain").html(popUpWindow);
 
         //點透明層視同取消，移除彈出畫面、透明層
         $("#checkDelcover").on("click",
             () => {
                 $("#checkDelcover").remove();
-                $("#complain").remove();
+                $("#thisMessageComplain").remove();
             });
 
         
@@ -535,7 +511,7 @@
             let p = document.querySelector(".pornography").checked;
             let t = document.querySelector(".threaten").checked;
             let H = document.querySelector(".Hatred").checked;
-            let d = $(".detail").val();
+            let d = $(".complainDetail").val();
 
             $.ajax({
                 url: "project/complainSend",
@@ -552,7 +528,7 @@
     //回覆留言
     //回覆也等同於新增留言，立馬取得留言的ID並新增,使用者可能馬上修改留言,ajax改同步執行(async: false)
     let replyNum=-1;
-    function replyMessage(){
+    function messageReply(){
         //檢查上修改是否有輸入值
         if($(`li:nth-child(${modNum + 1 }) .modThis`).val() != "" && modNum!=-1){
             //彈出視窗以外的部分為透明層，防止其他操作
@@ -560,7 +536,7 @@
 
             //彈出提示視窗確認是否放棄上個修改，如果上個修改不為空
             theHint();
-            var popUpWindow = "<span class='pop'>放棄上個修改嗎?</br>按'是'後無法復原喔。</span><button class='left' id='userNo'>否</button><button class='right' id='userYes'>是</button>";
+            var popUpWindow = "<span class='popUpHint'>放棄上個修改嗎?</br>按'是'後無法復原喔。</span><button class='leftIsNo' id='userNo'>否</button><button class='rightIsYes' id='userYes'>是</button>";
             $("#checkHint").html(popUpWindow);
 
             //點透明層視同取消，移除彈出畫面、透明層
@@ -611,7 +587,7 @@
             var errorMessage = false;
             $.ajax({
             url: "/project/setMessage",
-            data: {replyID: i,userID: userID,userName: userName,main: getThisReplyText,date: getNowTime },
+            data: {replyID: i,userID: @ID,userName: @name,main: getThisReplyText,date: getNowTime },
             type: 'GET',
             async: false,
             success: (res) =>{getMessageID=res;},
@@ -628,10 +604,10 @@
                                 <span class="replyID" style="display: none" name="replyID">${i}</span>
                                 <span style="font-size:15px" name="userName">用戶: ${userName}</span>
                                 <span class="datetime" style="font-size:10px">${getNowTime}</span>
-                                <span class="del" style="font-size:15px;color:red">刪除</span>
-                                <span class="mod" style="font-size:15px">修改</span>
-                                <span class="complain" style="font-size:15px">檢舉</span>
-                                <span class="reply" style="font-size:15px">回覆</span><br>
+                                <span class="messageDel" style="font-size:15px;color:red">刪除</span>
+                                <span class="messageMod" style="font-size:15px">修改</span>
+                                <span class="messageComplain" style="font-size:15px">檢舉</span>
+                                <span class="messageReply" style="font-size:15px">回覆</span><br>
                                 <sapn>回覆: </sapn>
                                 <span class="messageWords">${getThisReplyText}</span>
                                 <input class="modThis" style="display: none" placeholder="輸入想修改的內容...">
@@ -639,10 +615,10 @@
                                 <span class="giveup" style="font-size:15px;display: none">放棄編輯</span>
                             </li>`);
             
-                $(`li:nth-child(${num + 2}) .del`).click(del);
-                $(`li:nth-child(${num + 2}) .mod`).click(mod);
-                $(`li:nth-child(${num + 2}) .complain`).click(complain);
-                $(`li:nth-child(${num + 2}) .reply`).click(replyMessage);
+                $(`li:nth-child(${num + 2}) .messageDel`).click(messageDel);
+                $(`li:nth-child(${num + 2}) .messageMod`).click(messageMod);
+                $(`li:nth-child(${num + 2}) .messageComplain`).click(messageComplain);
+                $(`li:nth-child(${num + 2}) .messageReply`).click(messageReply);
                 $(`li:nth-child(${num + 2}) .giveup`).click(giveUp);
 
                 $(".replyThis")[num].value = "";
@@ -658,7 +634,7 @@
 
                 //彈出提示視窗確認是否放棄上個回覆，如果上個回覆不為空
                 theHint();
-                var popUpWindow = "<span class='pop'>放棄上個回覆嗎?</br>按'是'後無法復原喔。</span><button class='left' id='userNo'>否</button><button class='right' id='userYes'>是</button>";
+                var popUpWindow = "<span class='popUpHint'>放棄上個回覆嗎?</br>按'是'後無法復原喔。</span><button class='leftIsNo' id='userNo'>否</button><button class='rightIsYes' id='userYes'>是</button>";
                 $("#checkHint").html(popUpWindow);
 
                 //點透明層視同取消，移除彈出畫面、透明層
@@ -703,20 +679,20 @@
     allMessageUserID.forEach(x=>{
         count++;
         let userIDToNum = Number(x.textContent);
-        if(userID != userIDToNum){
-            $(`li:nth-child(${count}) .del`).hide();
-            $(`li:nth-child(${count}) .mod`).hide();
-        }else if(userID == userIDToNum){
-            $(`li:nth-child(${count}) .complain`).hide();
+        if(@ID != userIDToNum){
+            $(`li:nth-child(${count}) .messageDel`).hide();
+            $(`li:nth-child(${count}) .messageMod`).hide();
+        }else if(@ID == userIDToNum){
+            $(`li:nth-child(${count}) .messageComplain`).hide();
         }
     });
-    if(userID<1){
-        complain=newMessageList=function(){
+    if(@ID<1){
+        messageComplain=newMessageList=function(){
             //彈出視窗以外的部分為透明層，防止其他操作
             overLay();
             //彈出提示視窗確認是否刪除留言
             theHint();
-            var popUpWindow = "<form action='/project/singin' method='get'><span class='pop'>請先登入</span><button class='left' id='userNo'>否</button><button class='right' type='submit'>是</button></from>";
+            var popUpWindow = "<form action='/project/singin' method='get'><span class='popUpHint'>請先登入</span><button class='leftIsNo' id='userNo'>否</button><button class='rightIsYes' type='submit'>是</button></from>";
             $("#checkHint").html(popUpWindow);
 
             //點透明層視同取消，移除彈出畫面、透明層
@@ -734,7 +710,7 @@
         }
     }
     if(identity!="seller"){
-        $(".reply").hide();
+        $(".messageReply").hide();
     }
 
 
@@ -755,10 +731,10 @@
     }
 
     //先前留言的刪除、修改、檢舉
-    $(".del").click(del);
-    $(".mod").click(mod);
-    $(".complain").click(complain);
-    $(".reply").click(replyMessage);
+    $(".messageDel").click(messageDel);
+    $(".messageMod").click(messageMod);
+    $(".messageComplain").click(messageComplain);
+    $(".messageReply").click(messageReply);
     $(".giveup").click(giveUp);
 
     $("#NewMeessage").keypress(e => {

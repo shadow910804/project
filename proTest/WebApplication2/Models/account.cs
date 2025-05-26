@@ -35,8 +35,8 @@ namespace WebApplication2.Models
     public class account
     {
         public int ID { get; set; }
-        public string userName { get; set; }
+        public string userName { get; set; } = "visitor";
         public string password { get; set; }
-        public string buyOrSell { get; set; }
+        public string buyOrSell { get; set; } = "visitor";
     }
 }
