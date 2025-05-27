@@ -7,16 +7,20 @@
       "RelativeMoniker": "D:0:0:{A823888B-2A49-4597-BFF7-A08BFA2F35A1}|WebApplication2\\WebApplication2.csproj|solutionrelative:webapplication2\\views\\project\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{A823888B-2A49-4597-BFF7-A08BFA2F35A1}|WebApplication2\\WebApplication2.csproj|c:\\users\\user\\desktop\\proupdate\\protest\\webapplication2\\controllers\\projectcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A823888B-2A49-4597-BFF7-A08BFA2F35A1}|WebApplication2\\WebApplication2.csproj|solutionrelative:webapplication2\\controllers\\projectcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{A823888B-2A49-4597-BFF7-A08BFA2F35A1}|WebApplication2\\WebApplication2.csproj|c:\\users\\user\\desktop\\proupdate\\protest\\webapplication2\\models\\account.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{A823888B-2A49-4597-BFF7-A08BFA2F35A1}|WebApplication2\\WebApplication2.csproj|solutionrelative:webapplication2\\models\\account.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
+      "AbsoluteMoniker": "D:0:0:{A823888B-2A49-4597-BFF7-A08BFA2F35A1}|WebApplication2\\WebApplication2.csproj|c:\\users\\user\\desktop\\proupdate\\protest\\webapplication2\\views\\project\\erroraccount.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{A823888B-2A49-4597-BFF7-A08BFA2F35A1}|WebApplication2\\WebApplication2.csproj|solutionrelative:webapplication2\\views\\project\\erroraccount.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{A823888B-2A49-4597-BFF7-A08BFA2F35A1}|WebApplication2\\WebApplication2.csproj|c:\\users\\user\\desktop\\proupdate\\protest\\webapplication2\\models\\dbmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{A823888B-2A49-4597-BFF7-A08BFA2F35A1}|WebApplication2\\WebApplication2.csproj|solutionrelative:webapplication2\\models\\dbmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A823888B-2A49-4597-BFF7-A08BFA2F35A1}|WebApplication2\\WebApplication2.csproj|c:\\users\\user\\desktop\\proupdate\\protest\\webapplication2\\controllers\\projectcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A823888B-2A49-4597-BFF7-A08BFA2F35A1}|WebApplication2\\WebApplication2.csproj|solutionrelative:webapplication2\\controllers\\projectcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{A823888B-2A49-4597-BFF7-A08BFA2F35A1}|WebApplication2\\WebApplication2.csproj|c:\\users\\user\\desktop\\proupdate\\protest\\webapplication2\\views\\project\\singin.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
@@ -29,10 +33,6 @@
     {
       "AbsoluteMoniker": "D:0:0:{A823888B-2A49-4597-BFF7-A08BFA2F35A1}|WebApplication2\\WebApplication2.csproj|c:\\users\\user\\desktop\\proupdate\\protest\\webapplication2\\views\\shared\\_layout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
       "RelativeMoniker": "D:0:0:{A823888B-2A49-4597-BFF7-A08BFA2F35A1}|WebApplication2\\WebApplication2.csproj|solutionrelative:webapplication2\\views\\shared\\_layout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{A823888B-2A49-4597-BFF7-A08BFA2F35A1}|WebApplication2\\WebApplication2.csproj|c:\\users\\user\\desktop\\proupdate\\protest\\webapplication2\\views\\project\\erroraccount.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{A823888B-2A49-4597-BFF7-A08BFA2F35A1}|WebApplication2\\WebApplication2.csproj|solutionrelative:webapplication2\\views\\project\\erroraccount.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     }
   ],
   "DocumentGroupContainers": [
@@ -50,48 +50,51 @@
               "Title": "Index.cshtml",
               "DocumentMoniker": "C:\\Users\\USER\\Desktop\\proUpdate\\proTest\\WebApplication2\\Views\\project\\Index.cshtml",
               "RelativeDocumentMoniker": "WebApplication2\\Views\\project\\Index.cshtml",
-              "ToolTip": "C:\\Users\\USER\\Desktop\\proUpdate\\proTest\\WebApplication2\\Views\\project\\Index.cshtml",
-              "RelativeToolTip": "WebApplication2\\Views\\project\\Index.cshtml",
-              "ViewState": "AgIAAFYAAAAAAAAAAAAAAIgAAAAOAAAAAAAAAA==",
+              "ToolTip": "C:\\Users\\USER\\Desktop\\proUpdate\\proTest\\WebApplication2\\Views\\project\\Index.cshtml*",
+              "RelativeToolTip": "WebApplication2\\Views\\project\\Index.cshtml*",
+              "ViewState": "AgIAAMIAAAAAAAAAAAAmwNMAAAAcAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
               "WhenOpened": "2025-05-24T01:36:45.283Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 1,
               "Title": "account.cs",
               "DocumentMoniker": "C:\\Users\\USER\\Desktop\\proUpdate\\proTest\\WebApplication2\\Models\\account.cs",
               "RelativeDocumentMoniker": "WebApplication2\\Models\\account.cs",
               "ToolTip": "C:\\Users\\USER\\Desktop\\proUpdate\\proTest\\WebApplication2\\Models\\account.cs",
               "RelativeToolTip": "WebApplication2\\Models\\account.cs",
-              "ViewState": "AQIAABIAAAAAAAAAAAAAwCUAAAA3AAAA",
+              "ViewState": "AgIAABIAAAAAAAAAAAAywB4AAAAfAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-05-24T01:36:45.855Z"
+              "WhenOpened": "2025-05-24T01:36:45.855Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 4,
               "Title": "projectController.cs",
               "DocumentMoniker": "C:\\Users\\USER\\Desktop\\proUpdate\\proTest\\WebApplication2\\Controllers\\projectController.cs",
               "RelativeDocumentMoniker": "WebApplication2\\Controllers\\projectController.cs",
               "ToolTip": "C:\\Users\\USER\\Desktop\\proUpdate\\proTest\\WebApplication2\\Controllers\\projectController.cs",
               "RelativeToolTip": "WebApplication2\\Controllers\\projectController.cs",
-              "ViewState": "AQIAAAsAAAAAAAAAAAAxwBkAAAA5AAAA",
+              "ViewState": "AgIAAG0AAAAAAAAAAAAUwGoAAAAoAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-05-24T01:36:45.857Z"
+              "WhenOpened": "2025-05-24T01:36:45.857Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 5,
               "Title": "singIn.cshtml",
               "DocumentMoniker": "C:\\Users\\USER\\Desktop\\proUpdate\\proTest\\WebApplication2\\Views\\project\\singIn.cshtml",
               "RelativeDocumentMoniker": "WebApplication2\\Views\\project\\singIn.cshtml",
               "ToolTip": "C:\\Users\\USER\\Desktop\\proUpdate\\proTest\\WebApplication2\\Views\\project\\singIn.cshtml",
               "RelativeToolTip": "WebApplication2\\Views\\project\\singIn.cshtml",
-              "ViewState": "AQIAAAMAAAAAAAAAAAAAABMAAABYAAAA",
+              "ViewState": "AgIAAAMAAAAAAAAAAAAAABMAAABYAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2025-05-24T01:36:45.858Z"
+              "WhenOpened": "2025-05-24T01:36:45.858Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -101,25 +104,27 @@
               "RelativeDocumentMoniker": "WebApplication2\\Models\\DBmanager.cs",
               "ToolTip": "C:\\Users\\USER\\Desktop\\proUpdate\\proTest\\WebApplication2\\Models\\DBmanager.cs",
               "RelativeToolTip": "WebApplication2\\Models\\DBmanager.cs",
-              "ViewState": "AQIAAJkAAAAAAAAAAAAAAK0AAABUAAAA",
+              "ViewState": "AgIAADEAAAAAAAAAAAAAwEoAAAAiAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-05-24T01:36:45.858Z"
+              "WhenOpened": "2025-05-24T01:36:45.858Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 7,
+              "DocumentIndex": 2,
               "Title": "errorAccount.cshtml",
               "DocumentMoniker": "C:\\Users\\USER\\Desktop\\proUpdate\\proTest\\WebApplication2\\Views\\project\\errorAccount.cshtml",
               "RelativeDocumentMoniker": "WebApplication2\\Views\\project\\errorAccount.cshtml",
               "ToolTip": "C:\\Users\\USER\\Desktop\\proUpdate\\proTest\\WebApplication2\\Views\\project\\errorAccount.cshtml",
               "RelativeToolTip": "WebApplication2\\Views\\project\\errorAccount.cshtml",
-              "ViewState": "AQIAABEAAAAAAAAAAAAuwDMAAAANAAAA",
+              "ViewState": "AgIAABEAAAAAAAAAAAAuwDMAAAANAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2025-05-24T01:36:45.859Z"
+              "WhenOpened": "2025-05-24T01:36:45.859Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 6,
               "Title": "Program.cs",
               "DocumentMoniker": "C:\\Users\\USER\\Desktop\\proUpdate\\proTest\\WebApplication2\\Program.cs",
               "RelativeDocumentMoniker": "WebApplication2\\Program.cs",
@@ -131,7 +136,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
+              "DocumentIndex": 7,
               "Title": "_Layout.cshtml",
               "DocumentMoniker": "C:\\Users\\USER\\Desktop\\proUpdate\\proTest\\WebApplication2\\Views\\Shared\\_Layout.cshtml",
               "RelativeDocumentMoniker": "WebApplication2\\Views\\Shared\\_Layout.cshtml",

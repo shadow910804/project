@@ -142,12 +142,77 @@
             <span data-value="4">★</span>
             <span data-value="5">★</span>
         </div>
+            <input type="file" accept=".png, .jpg, .jpeg" name="imageFile" id="imageFileOfMessage"/>
+            <div id="newImg"></div>
     </div>
 </body>
+<link href='//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css' rel='stylesheet'></link>
+<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css" rel="stylesheet"></link>
 <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 <script src="https://cdn.bootcdn.net/ajax/libs/dayjs/1.4.1/dayjs.min.js"></script>
 <script>
+    //權限
     var identity = '@ViewBag.identity';
+
+    //圖片預覽與處理
+    var upLoadImage;
+    var newMessageImageHtml="";
+    (function($) {
+    var imgNewWidth = 200, // 圖片新寬度
+    img = new Image(),
+    canvas = document.createElement("canvas"),
+    context = canvas.getContext("2d"),
+    file, fileReader, dataUrl;
+
+    // 接收上傳檔案
+    $("#imageFileOfMessage").change(function() {
+    file = this.files[0];
+    // 圖片處理
+    if (file && file.type.indexOf("image") == 0) {
+    fileReader = new FileReader();
+    fileReader.onload = getFileInfo;
+    fileReader.readAsDataURL(file);
+    }
+    });
+
+    function getFileInfo(e) {
+    dataUrl = e.target.result,
+
+    // 取得圖片
+    img.src = dataUrl;
+    }
+
+    // 圖片載入後
+    img.onload = function() {
+    var width = this.width, // 圖片原始寬度
+    height = this.height, // 圖片原始高度
+    imgNewHeight = imgNewWidth * height / width, // 圖片新高度
+    html = "",
+    newImg;
+
+    // 使用 canvas 調整圖片寬高
+    canvas.width = imgNewWidth;
+    canvas.height = imgNewHeight;
+    context.clearRect(0, 0, imgNewWidth, imgNewHeight);
+
+    // 調整圖片尺寸
+    context.drawImage(img, 0, 0, imgNewWidth, imgNewHeight);
+
+    // 顯示預覽圖片 壓縮80%
+    newImg = canvas.toDataURL("image/jpeg", 0.8);
+    html += "<img src='" + newImg + "'/>";
+    html += "<p>上傳預覽 " + imgNewWidth + "x" + imgNewHeight + "</p>";
+    html += "<p>檔案大小約 " + Math.round(0.75 * newImg.length / 1000) + "k</p>";
+    $("#newImg").html(html);
+    newMessageImageHtml += "<img src='" + newImg + "'/>";
+
+    //canvas 轉換為 blob 格式、上傳
+    canvas.toBlob(function(blob) {
+    upLoadImage=blob;
+    }, "image/jpeg", 0.8);
+    };
+    })(jQuery);
+
 
 
     //產生留言
@@ -178,8 +243,10 @@
             var errorMessage = false;
             $.ajax({
                 url: "/project/setMessage",
-                data: {replyID: 0,userID: @ID,userName: @name,main: catchNewMessage,date: getNowTime,score :selectedRating },
+                data: {replyID: 0,userID: @ID,userName: @name,main: catchNewMessage,date: getNowTime,score :selectedRating,imageData:upLoadImage },
                 type: 'GET',
+                processData: false,
+　　　　        contentType : false,
                 async: false,
                 success: (res) =>{getMessageID=res;},
                 error: err => {errorMessage = true;}
@@ -203,6 +270,7 @@
                                     <input class="modThis" style="display: none" placeholder="輸入想修改的內容...">
                                     <input class="replyThis" style="display: none" placeholder="輸入想回覆的內容...">
                                     <span class="giveup" style="font-size:15px;display: none">放棄編輯</span>
+                                    ${newMessageImageHtml}
                                     <div class="stars modStarRating"></div>
                                 </li>`);
                 //清空輸入框與星星

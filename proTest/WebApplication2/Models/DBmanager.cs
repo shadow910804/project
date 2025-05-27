@@ -24,7 +24,7 @@ namespace WebApplication2.Models
             sqlCommand.Connection = sqlConnection;
             sqlConnection.Open();
 
-            SqlDataReader reader = sqlCommand.ExecuteReader();
+            SqlDataReader reader = sqlCommand.ExecuteReader(CommandBehavior.SequentialAccess);
             if (reader.HasRows)
             {
                 while (reader.Read())
@@ -38,7 +38,8 @@ namespace WebApplication2.Models
                         userName = reader.GetString(reader.GetOrdinal("userName")),
                         main = reader.GetString(reader.GetOrdinal("main")),
                         date = reader.GetDateTime(reader.GetOrdinal("date")),
-                        score = reader.GetInt32(reader.GetOrdinal("score"))
+                        score = reader.GetInt32(reader.GetOrdinal("score")),
+                        imageData = reader.GetSqlBinary(reader.GetOrdinal("imageData")).Value
                     };
                     m.Add(account);
                 }
@@ -57,7 +58,7 @@ namespace WebApplication2.Models
         public void keyinMessage(messages m)
         {
             SqlConnection sqlconnection = new SqlConnection(connStr);
-            SqlCommand sqlcommand = new SqlCommand(@"INSERT INTO message(replyID,userID,productID,userName,main,date,score) VALUES(@replyID,@userID,@productID,@userName,@main,@date,@score)");
+            SqlCommand sqlcommand = new SqlCommand(@"INSERT INTO message(replyID,userID,productID,userName,main,date,score,imageData) VALUES(@replyID,@userID,@productID,@userName,@main,@date,@score,@imageData)");
             sqlcommand.Connection = sqlconnection;
 
             sqlcommand.Parameters.Add(new SqlParameter("@replyID", m.replyID));
@@ -67,6 +68,7 @@ namespace WebApplication2.Models
             sqlcommand.Parameters.Add(new SqlParameter("@main", m.main));
             sqlcommand.Parameters.Add(new SqlParameter("@date", m.date));
             sqlcommand.Parameters.Add(new SqlParameter("@score", m.score));
+            sqlcommand.Parameters.Add(new SqlParameter("@imageData", m.imageData));
 
             sqlconnection.Open();
             sqlcommand.ExecuteNonQuery();
