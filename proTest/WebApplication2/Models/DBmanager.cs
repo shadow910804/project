@@ -24,7 +24,7 @@ namespace WebApplication2.Models
             sqlCommand.Connection = sqlConnection;
             sqlConnection.Open();
 
-            SqlDataReader reader = sqlCommand.ExecuteReader(CommandBehavior.SequentialAccess);
+            SqlDataReader reader = sqlCommand.ExecuteReader();
             if (reader.HasRows)
             {
                 while (reader.Read())
@@ -58,21 +58,40 @@ namespace WebApplication2.Models
         public void keyinMessage(messages m)
         {
             SqlConnection sqlconnection = new SqlConnection(connStr);
-            SqlCommand sqlcommand = new SqlCommand(@"INSERT INTO message(replyID,userID,productID,userName,main,date,score,imageData) VALUES(@replyID,@userID,@productID,@userName,@main,@date,@score,@imageData)");
-            sqlcommand.Connection = sqlconnection;
+            if (m.imageData!=null) {
+                SqlCommand sqlcommand = new SqlCommand(@"INSERT INTO message(replyID,userID,productID,userName,main,date,score,imageData) VALUES(@replyID,@userID,@productID,@userName,@main,@date,@score,@imageData)");
+                sqlcommand.Connection = sqlconnection;
 
-            sqlcommand.Parameters.Add(new SqlParameter("@replyID", m.replyID));
-            sqlcommand.Parameters.Add(new SqlParameter("@userID", m.userID));
-            sqlcommand.Parameters.Add(new SqlParameter("@productID", m.productID));
-            sqlcommand.Parameters.Add(new SqlParameter("@userName", m.userName));
-            sqlcommand.Parameters.Add(new SqlParameter("@main", m.main));
-            sqlcommand.Parameters.Add(new SqlParameter("@date", m.date));
-            sqlcommand.Parameters.Add(new SqlParameter("@score", m.score));
-            sqlcommand.Parameters.Add(new SqlParameter("@imageData", m.imageData));
+                sqlcommand.Parameters.Add(new SqlParameter("@replyID", m.replyID));
+                sqlcommand.Parameters.Add(new SqlParameter("@userID", m.userID));
+                sqlcommand.Parameters.Add(new SqlParameter("@productID", m.productID));
+                sqlcommand.Parameters.Add(new SqlParameter("@userName", m.userName));
+                sqlcommand.Parameters.Add(new SqlParameter("@main", m.main));
+                sqlcommand.Parameters.Add(new SqlParameter("@date", m.date));
+                sqlcommand.Parameters.Add(new SqlParameter("@score", m.score));
+                sqlcommand.Parameters.Add(new SqlParameter("@imageData", m.imageData));
 
-            sqlconnection.Open();
-            sqlcommand.ExecuteNonQuery();
-            sqlconnection.Close();
+                sqlconnection.Open();
+                sqlcommand.ExecuteNonQuery();
+                sqlconnection.Close();
+            }
+            else
+            {
+                SqlCommand sqlcommand = new SqlCommand(@"INSERT INTO message(replyID,userID,productID,userName,main,date,score) VALUES(@replyID,@userID,@productID,@userName,@main,@date,@score)");
+                sqlcommand.Connection = sqlconnection;
+
+                sqlcommand.Parameters.Add(new SqlParameter("@replyID", m.replyID));
+                sqlcommand.Parameters.Add(new SqlParameter("@userID", m.userID));
+                sqlcommand.Parameters.Add(new SqlParameter("@productID", m.productID));
+                sqlcommand.Parameters.Add(new SqlParameter("@userName", m.userName));
+                sqlcommand.Parameters.Add(new SqlParameter("@main", m.main));
+                sqlcommand.Parameters.Add(new SqlParameter("@date", m.date));
+                sqlcommand.Parameters.Add(new SqlParameter("@score", m.score));
+
+                sqlconnection.Open();
+                sqlcommand.ExecuteNonQuery();
+                sqlconnection.Close();
+            }
         }
         //存入留言↑
 
@@ -117,18 +136,36 @@ namespace WebApplication2.Models
         public void fixMessage(messages m)
         {
             SqlConnection sqlconnection = new SqlConnection(connStr);
-            SqlCommand sqlcommand = new SqlCommand(@"UPDATE message SET main = @main,date = @date,score = @score WHERE userID = @i AND messageID = @m");
-            sqlcommand.Connection = sqlconnection;
 
-            sqlcommand.Parameters.Add(new SqlParameter("@m", m.messageID));
-            sqlcommand.Parameters.Add(new SqlParameter("@i", m.userID));
-            sqlcommand.Parameters.Add(new SqlParameter("@main", m.main));
-            sqlcommand.Parameters.Add(new SqlParameter("@date", m.date));
-            sqlcommand.Parameters.Add(new SqlParameter("@score", m.score));
+            if (m.imageData != null)
+            {
+                SqlCommand sqlcommand = new SqlCommand(@"UPDATE message SET main = @main,date = @date,score = @score,imageData = @imageData WHERE messageID = @m");
+                sqlcommand.Connection = sqlconnection;
 
-            sqlconnection.Open();
-            sqlcommand.ExecuteNonQuery();
-            sqlconnection.Close();
+                sqlcommand.Parameters.Add(new SqlParameter("@m", m.messageID));
+                sqlcommand.Parameters.Add(new SqlParameter("@main", m.main));
+                sqlcommand.Parameters.Add(new SqlParameter("@date", m.date));
+                sqlcommand.Parameters.Add(new SqlParameter("@score", m.score));
+                sqlcommand.Parameters.Add(new SqlParameter("@imageData", m.imageData));
+
+                sqlconnection.Open();
+                sqlcommand.ExecuteNonQuery();
+                sqlconnection.Close();
+            }
+            else
+            {
+                SqlCommand sqlcommand = new SqlCommand(@"UPDATE message SET main = @main,date = @date,score = @score WHERE messageID = @m");
+                sqlcommand.Connection = sqlconnection;
+
+                sqlcommand.Parameters.Add(new SqlParameter("@m", m.messageID));
+                sqlcommand.Parameters.Add(new SqlParameter("@main", m.main));
+                sqlcommand.Parameters.Add(new SqlParameter("@date", m.date));
+                sqlcommand.Parameters.Add(new SqlParameter("@score", m.score));
+
+                sqlconnection.Open();
+                sqlcommand.ExecuteNonQuery();
+                sqlconnection.Close();
+            }
         }
         //修改留言↑
 

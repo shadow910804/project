@@ -124,7 +124,16 @@
                 }
                 <input class="modThis" style="display: none" placeholder="輸入想修改的內容...">
                 <input class="replyThis" style="display: none" placeholder="輸入想回覆的內容...">
-                <span class="giveup" style="font-size:15px;display: none">放棄編輯</span>
+                <span class="giveup" style="font-size:15px;display: none">放棄編輯</span><br>
+                @if (@a.imageData != null){
+                    string base64Image = "data:image/jpeg;base64," + Convert.ToBase64String(@a.imageData);
+                    <img class="showImage" src="@base64Image" alt="Image" />
+                }
+                else{
+                    <img class="showImage" src=''/>
+                }
+                <input class="imageFileOfMessageMod" style="display: none" type="file" accept=".png, .jpg, .jpeg" name="imageData"/>
+                <div class="modImg"></div>
                 <div class="stars modStarRating"></div>
                 @:</li>
             }
@@ -151,10 +160,8 @@
 <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 <script src="https://cdn.bootcdn.net/ajax/libs/dayjs/1.4.1/dayjs.min.js"></script>
 <script>
-    //權限
-    var identity = '@ViewBag.identity';
 
-    //圖片預覽與處理
+    //圖片預覽、存入變數上傳與顯示(新留言)
     var upLoadImage;
     var newMessageImageHtml="";
     (function($) {
@@ -204,12 +211,9 @@
     html += "<p>上傳預覽 " + imgNewWidth + "x" + imgNewHeight + "</p>";
     html += "<p>檔案大小約 " + Math.round(0.75 * newImg.length / 1000) + "k</p>";
     $("#newImg").html(html);
-    newMessageImageHtml += "<img src='" + newImg + "'/>";
+    newMessageImageHtml = "<img class='showImage' src='" + newImg + "'/>";
+    upLoadImage=newImg.split(",")[1];
 
-    //canvas 轉換為 blob 格式、上傳
-    canvas.toBlob(function(blob) {
-    upLoadImage=blob;
-    }, "image/jpeg", 0.8);
     };
     })(jQuery);
 
@@ -244,9 +248,7 @@
             $.ajax({
                 url: "/project/setMessage",
                 data: {replyID: 0,userID: @ID,userName: @name,main: catchNewMessage,date: getNowTime,score :selectedRating,imageData:upLoadImage },
-                type: 'GET',
-                processData: false,
-　　　　        contentType : false,
+                type: 'POST',
                 async: false,
                 success: (res) =>{getMessageID=res;},
                 error: err => {errorMessage = true;}
@@ -269,8 +271,10 @@
                                     <span>評分：</span><span class="notNewStars">${'★'.repeat(selectedRating)}${'☆'.repeat(5 - selectedRating)}</span>
                                     <input class="modThis" style="display: none" placeholder="輸入想修改的內容...">
                                     <input class="replyThis" style="display: none" placeholder="輸入想回覆的內容...">
-                                    <span class="giveup" style="font-size:15px;display: none">放棄編輯</span>
+                                    <span class="giveup" style="font-size:15px;display: none">放棄編輯</span><br>
                                     ${newMessageImageHtml}
+                                    <input class="imageFileOfMessageMod" style="display: none" type="file" accept=".png, .jpg, .jpeg" name="imageData"/>
+                                    <div class="modImg"></div>
                                     <div class="stars modStarRating"></div>
                                 </li>`);
                 //清空輸入框與星星
@@ -341,6 +345,66 @@
     }
 
 
+    //modNum起始設置為(0<)，否則nth-child無法正確選擇
+    let modNum=-1;
+    //圖片預覽、存入變數上傳與顯示(修改)
+    var upLoadImageMod="";
+    var modMessageImageHtml="";
+    let imageSrcUpDate;
+    (function($) {
+    var img = new Image(),
+    canvas = document.createElement("canvas"),
+    context = canvas.getContext("2d"),
+    file, fileReader, dataUrl;
+
+
+    // 接收上傳檔案
+    $(`.imageFileOfMessageMod`).change(function() {
+    file = this.files[0];
+    // 圖片處理
+    if (file && file.type.indexOf("image") == 0) {
+    fileReader = new FileReader();
+    fileReader.onload = getFileInfo;
+    fileReader.readAsDataURL(file);
+    }
+    });
+
+    function getFileInfo(e) {
+    dataUrl = e.target.result,
+
+    // 取得圖片
+    img.src = dataUrl;
+    }
+
+    // 圖片載入後
+    img.onload = function() {
+    var width = this.width, // 圖片原始寬度
+    height = this.height, // 圖片原始高度
+    imgNewHeight = 200 * height / width, // 圖片新高度
+    htmlMod = "",
+    newImg;
+
+    // 使用 canvas 調整圖片寬高
+    canvas.width = 200;
+    canvas.height = imgNewHeight;
+    context.clearRect(0, 0, 200, imgNewHeight);
+
+    // 調整圖片尺寸
+    context.drawImage(img, 0, 0, 200, imgNewHeight);
+
+    // 顯示預覽圖片 壓縮80%
+    newImg = canvas.toDataURL("image/jpeg", 0.8);
+    htmlMod += "<img src='" + newImg + "'/>";
+    htmlMod += "<p>上傳預覽 " + 200 + "x" + imgNewHeight + "</p>";
+    htmlMod += "<p>檔案大小約 " + Math.round(0.75 * newImg.length / 1000) + "k</p>";
+    $(`li:nth-child(${modNum + 1}) .modImg`).html(htmlMod);
+    modMessageImageHtml = "<img class='showImage' src='" + newImg + "'/>";
+    imageSrcUpDate=newImg;
+    upLoadImageMod=newImg.split(",")[1];
+
+    };
+    })(jQuery);
+
     //星級評分(修改留言)
     let modSelectedRating = 0;
     function modStarSelectedColor(){
@@ -355,9 +419,8 @@
             });
         });
     }
+
     //修改留言
-    //modNum起始設置為(0<)，否則nth-child無法正確選擇
-    let modNum=-1;
     function messageMod() {
         //檢查上回覆是否有輸入值
         if($(`li:nth-child(${replyNum + 1 }) .replyThis`).val() != "" && replyNum!=-1){
@@ -400,10 +463,13 @@
                 replyNum=-1;
         }
 
+
+
         //修改留言正文
         let num = $(this).parent().index();
         $(`li:nth-child(${num + 1}) .modThis`).show();
         $(`li:nth-child(${num + 1}) .giveup`).show();
+        $(`li:nth-child(${num + 1}) .imageFileOfMessageMod`).show();
         let getThisModText = $(`li:nth-child(${num + 1}) .modThis`).val();
         let i = $(".messageID")[num].textContent;
         //取得現在時間
@@ -411,38 +477,46 @@
         
         if (getThisModText != '') {
             if (modSelectedRating === 0) {
-                alert('請選擇星數並填寫留言。');
+                alert('請選擇星數。');
                 return;}
 
             var errorMessage = false;
 
             $.ajax({
             url: "/project/modMessage",
-            data: { messageID: i, userID: @ID,main: getThisModText,date: getNowTime,score :modSelectedRating },
-            type: 'GET',
+            data: { messageID: i, userID: @ID,main: getThisModText,date: getNowTime,score :modSelectedRating,imageData:upLoadImageMod },
+            type: 'POST',
             async: false,
             error: err => {errorMessage = true;}
             })
             if(errorMessage){
                 alert("發生錯誤，請聯絡管理員。");
+                return;
             }
 
             //時間、星數、留言即時更新
             $(`li:nth-child(${num + 1}) .messageWords`).text(getThisModText);
             $(`li:nth-child(${num + 1}) .datetime`).html(getNowTime);
             $(`li:nth-child(${num + 1}) .notNewStars`).html(`${'★'.repeat(modSelectedRating)}${'☆'.repeat(5 - modSelectedRating)}`);
+            $(`li:nth-child(${num + 1}) .showImage`).attr("src",imageSrcUpDate);
+
+            //清除與隱藏
             modSelectedRating = 0;
             modNum=-1;
             $(".modThis")[num].value = "";
-
             $(`li:nth-child(${num + 1}) .modThis`).hide();
             $(`li:nth-child(${num + 1}) .giveup`).hide();
+            $(`.imageFileOfMessageMod`)[num].value = "";
+            $(`li:nth-child(${num + 1}) .imageFileOfMessageMod`).hide();
             $(`ol>li:nth-child(${num + 1}) .modStarRating`).html('');
+            $(`li:nth-child(${num + 1}) .modImg`).html('');
+            modMessageImageHtml="";
+            upLoadImageMod="";
             return;
         }
         //當選擇修改另一個留言時，檢查上個修改是否有輸入字，並對使用者做出提示，關閉上個修改留言輸入框
-        if(modNum>-1){
-            if($(`li:nth-child(${modNum + 1}) .modThis`).val() != "" || modSelectedRating!=0){
+        if(modNum>-1 && modNum!=num){
+            if($(`li:nth-child(${modNum + 1}) .modThis`).val() != "" || modSelectedRating!=0 || upLoadImageMod!=""){
                 //彈出視窗以外的部分為透明層，防止其他操作
                 overLay();
                 //彈出提示視窗確認是否放棄上個修改，如果上個修改不為空
@@ -466,10 +540,14 @@
                         $(`li:nth-child(${num + 1}) .modThis`).hide();
                         $(`li:nth-child(${num + 1}) .giveup`).hide();
                         $(`ol>li:nth-child(${num + 1}) .modStarRating`).html('');
+                        $(`li:nth-child(${num + 1}) .imageFileOfMessageMod`).hide();
                     });
                 $("#userYes").on("click",
                     () => {
                         //清除文字不能用選擇器
+                        $(`.imageFileOfMessageMod`)[modNum].value = "";
+                        $(`li:nth-child(${modNum + 1}) .imageFileOfMessageMod`).hide();
+                        $(`li:nth-child(${modNum + 1}) .modImg`).html('');
                         $(".modThis")[modNum].value = "";
                         $(`li:nth-child(${modNum + 1}) .modThis`).hide();
                         $(`li:nth-child(${modNum + 1}) .giveup`).hide();
@@ -479,11 +557,14 @@
                         modSelectedRating = 0;
                         modNum=num;
                         modStarSelectedColor();
+                        modMessageImageHtml="";
+                        upLoadImageMod="";
                     });
             }else if(modNum!=num){
                 $(`li:nth-child(${modNum + 1}) .modThis`).hide();
                 $(`li:nth-child(${modNum + 1}) .giveup`).hide();
                 $(`ol>li:nth-child(${modNum + 1}) .modStarRating`).html('');
+                $(`li:nth-child(${modNum + 1}) .imageFileOfMessageMod`).hide();
             }
         }
         if(modNum!=num){
@@ -494,7 +575,7 @@
                 <span data-value="4">★</span>
                 <span data-value="5">★</span>`)
         }
-        if($(`li:nth-child(${modNum + 1}) .modThis`).val() == "" && modSelectedRating==0){
+        if($(`li:nth-child(${modNum + 1}) .modThis`).val() == "" && modSelectedRating==0 && upLoadImageMod==""){
             modNum=num;
         }
         if(modNum==-1){
@@ -507,7 +588,7 @@
     //放棄編輯(回覆、修改)
     function giveUp(){
         let num = $(this).parent().index();
-        if($(`li:nth-child(${num + 1}) .modThis`).val() != '' || $(`li:nth-child(${num + 1 }) .replyThis`).val() != ""){
+        if($(`li:nth-child(${num + 1}) .modThis`).val() != '' || $(`li:nth-child(${num + 1 }) .replyThis`).val() != "" || upLoadImageMod!=""){
         //彈出視窗以外的部分為透明層，防止其他操作
         overLay();
         //彈出提示視窗確認是否放棄這則編輯，如果上個這則編輯不為空
@@ -531,17 +612,29 @@
                 //清除文字不能用選擇器
                 $(".modThis")[num].value = "";
                 $(".replyThis")[num].value = "";
+                $(`.imageFileOfMessageMod`)[num].value = "";
+                $(`li:nth-child(${num + 1}) .imageFileOfMessageMod`).hide();
                 $(`li:nth-child(${num + 1}) .replyThis`).hide();
                 $(`li:nth-child(${num + 1}) .giveup`).hide();
                 $(`li:nth-child(${num + 1}) .modThis`).hide();
+                $(`li:nth-child(${num + 1}) .modImg`).html('');
+                $(`ol>li:nth-child(${num + 1}) .modStarRating`).html('');
                 $("#checkDelcover").remove();
                 $("#checkHint").remove();
+                modStarSelectedColor();
                 modNum=-1;
+                modMessageImageHtml="";
+                upLoadImageMod="";
+                modSelectedRating = 0;
             });
         }else{
                 $(`li:nth-child(${num + 1}) .replyThis`).hide();
                 $(`li:nth-child(${num + 1}) .giveup`).hide();
                 $(`li:nth-child(${num + 1}) .modThis`).hide();
+                $(`li:nth-child(${num + 1}) .imageFileOfMessageMod`).hide();
+                $(`ol>li:nth-child(${num + 1}) .modStarRating`).html('');
+                modStarSelectedColor();
+                modNum=-1;
         }
     }
 
@@ -598,7 +691,7 @@
     let replyNum=-1;
     function messageReply(){
         //檢查上修改是否有輸入值
-        if($(`li:nth-child(${modNum + 1 }) .modThis`).val() != "" && modNum!=-1){
+        if($(`li:nth-child(${modNum + 1 }) .modThis`).val() != "" && modNum!=-1 && upLoadImageMod!=""){
             //彈出視窗以外的部分為透明層，防止其他操作
             overLay();
 
@@ -625,20 +718,29 @@
             $("#userYes").on("click",
                 () => {
                     //清除文字不能用選擇器
+
                     $(".modThis")[modNum].value = "";
-                    $(`li:nth-child(${modNum + 1}) .modThis`).hide();
+                    $(".replyThis")[modNum].value = "";
+                    $(`.imageFileOfMessageMod`)[numodNumm].value = "";
+                    $(`li:nth-child(${modNum + 1}) .imageFileOfMessageMod`).hide();
+                    $(`li:nth-child(${modNum + 1}) .replyThis`).hide();
                     $(`li:nth-child(${modNum + 1}) .giveup`).hide();
+                    $(`li:nth-child(${modNum + 1}) .modThis`).hide();
+                    $(`ol>li:nth-child(${modNum + 1}) .modStarRating`).html('');
+                    $(`li:nth-child(${modNum + 1}) .modImg`).html('');
                     $("#checkDelcover").remove();
                     $("#checkHint").remove();
-                    $(`ol>li:nth-child(${modNum + 1}) .modStarRating`).html('');
-                    modSelectedRating = 0;
                     modNum=-1;
+                    modMessageImageHtml="";
+                    upLoadImageMod="";
+                    modSelectedRating = 0;
                     modStarSelectedColor();
                 });
         }else if(modNum>-1){
                 $(`li:nth-child(${modNum + 1}) .modThis`).hide();
                 $(`li:nth-child(${modNum + 1}) .giveup`).hide();
                 $(`ol>li:nth-child(${modNum + 1}) .modStarRating`).html('');
+                $(`li:nth-child(${num + 1}) .imageFileOfMessageMod`).hide();
                 modNum=-1;
         }
 
@@ -740,7 +842,8 @@
     }
 
 
-
+    //權限
+    var identity = '@ViewBag.identity';
     //權限控制
     const allMessageUserID = document.querySelectorAll('li>.userID');
     var count = 0;

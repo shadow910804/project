@@ -1,5 +1,6 @@
 ﻿using MailKit.Net.Smtp;
 using MailKit.Security;
+using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.AspNetCore.Mvc;
 using MimeKit;
 using MimeKit.Cryptography;
@@ -110,6 +111,7 @@ namespace WebApplication2.Controllers
             dBmanager.keyinMessage(m);
             return dBmanager.getNewMessageID(m);
         }
+
 
 
 
